@@ -305,19 +305,6 @@ public class RM {
 		panel.setBounds(617, 223, 117, 230);
 		frmMm.getContentPane().add(panel);
 		
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!	
-	/*	
-		for (int i = 0; i < 3; i++) {
-			fontButtons[i] = new JRadioButton(txt.getText());
-			fontGroup.add(fontButtons[i]);
-
-
-		   // panel.add(button);
-		    panel.add(fontButtons[i]);
-		   // button.setSelected(true);
-		} 
-		fontButtons[1].setSelected(true);
-	*/
 		btnPradti.addActionListener( new ActionListener()
 		{
 		    public void actionPerformed(ActionEvent e)
