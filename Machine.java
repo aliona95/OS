@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Random;
 
 /**
@@ -37,7 +38,10 @@ public class Machine{
     private byte IOI;
     private byte PI;
     private byte SI;
-    private byte TI;
+    private byte TI = 10;
+    public int channelNumber;
+    public byte channelDeviceBuffer[] = new byte[64];
+    public int X, Y;
     
     
   
@@ -219,6 +223,10 @@ public class Machine{
     			commandOP(Character.getNumericValue(command.charAt(2)), 
 					  	  Character.getNumericValue(command.charAt(3)));
     			break;
+    		case "IP":
+    			commandIP(Character.getNumericValue(command.charAt(2)), 
+					  	  Character.getNumericValue(command.charAt(3)));
+    			break;
     		// PABAIGA
     		case "HALT":
     			commandHALT();
@@ -391,7 +399,20 @@ public class Machine{
     }
     //ISVEDIMO IR IVEDIMO KOMANDOS
     public void commandOP(int x, int y){
+    	incIC();
     	SI = 2;  
+    	int address = realAddress(x,y);
+    	X = x;
+    	Y = y;
+    	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!PATIKRINTI X IR Y ir NUSTATYTI PI = 1
+    }
+    public void commandIP(int x, int y){
+    	incIC();
+    	SI = 1;  
+    	int address = realAddress(x,y);
+    	X = x;
+    	Y = y;
+    	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!PATIKRINTI X IR Y ir NUSTATYTI PI = 1
     }
     // PABAIGA
     public void commandHALT(){
@@ -435,6 +456,160 @@ public class Machine{
 	}
 	public int getBit(int pos){
 		return(SF >> pos) & 1;
+	}
+	// INTERRUPTS
+	public void checkInterrupt(){
+		if((byte) TI == 0){
+			System.out.println("Program has exceeded its time limit");
+			MODE = 1;
+			restartTimer();
+			MODE = 0;
+		}
+		if((byte) PI != 0){
+			switch((byte) PI){
+			case 1:
+				System.out.println("Program interrupt. Incorrect command");
+				MODE = 1;
+				stopProgram();
+				break;
+			case 2:
+				System.out.println("Program interrupt. Negative result");
+				MODE = 1;
+				stopProgram();
+				break;
+			case 3:
+				System.out.println("Program interrupt. Division by zero");
+				MODE = 1;
+				stopProgram();
+				break;
+			case 4:
+				System.out.println("Program interrupt. Program overflow");
+				MODE = 1;
+				stopProgram();
+				break;
+			}
+		}
+		if((byte) SI != 0){
+			switch((byte) SI){
+			case 1:
+				System.out.println("Program interrupt. Data input");
+				MODE = 1;
+				channelNumber = 1;
+				MODE = 0;
+				SI = 0;
+				break;
+			case 2:
+				System.out.println("Program interrupt. Data output");
+				MODE = 1;
+				channelNumber = 2;
+				MODE = 0;
+				SI = 0;
+				break;
+			case 3:
+				System.out.println("Program interrupt. Command halt");
+				MODE = 1;
+				stopProgram();
+				break;
+			}
+		}
+		if((byte) IOI != 0){
+			switch((byte) IOI){
+			case 1:
+				System.out.println("Channel 1 done");
+				MODE = 1;
+				IOI = 0;
+				MODE = 0;
+				break;
+			case 2:
+				System.out.println("Channel 2 done");
+				MODE = 1;
+				IOI = 0;
+				MODE = 0;
+				break;
+			case 3:
+				System.out.println("Channel 3 done");
+				MODE = 1;
+				IOI = 0;
+				MODE = 0;
+				break;
+			}
+		}
+	}
+	public void restartTimer(){
+		if((byte) MODE == 1){
+			TI = (byte) 10;
+			System.out.println("Supervisor => Timer restarted succesfully");
+		}
+	}
+	public void startIO() throws IOException{
+		if(channelNumber == 1){
+			channelNumber = 0;
+			CH1 = 1;
+			System.out.println("INPUT DATA ");
+			BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+			String input = br.readLine();
+			int length = input.length();
+			if(length > 64){
+				length = 64;
+			}
+			for(int i = 0; i < length; i++){
+				channelDeviceBuffer[i] = (byte) input.charAt(i);
+			}
+			// PABAIGOS SIMBOLIS
+			if(length < 64){
+				channelDeviceBuffer[length] = (byte) '$';     // 36
+			}
+			int startPos = X * BLOCK_SIZE + Y;  ///patasyt poto iki F!!!!!!!!!!!!!!!!!!!!!!!!!
+			outerloopCH1:
+			for(int i = 0; i < BLOCK_SIZE; i++){
+				int x = (startPos + i) / 16;
+				int y = (startPos + i) % 16;
+				int address = realAddress(x, y);
+				for(int j = 0; j < WORD_SIZE; j++){
+					if(channelDeviceBuffer[i * WORD_SIZE + j] == '$'){
+						break outerloopCH1;
+					}
+					memory[address + j] = channelDeviceBuffer[i * WORD_SIZE + j];
+				}
+			}
+			CH1 = (byte) 0;
+			IOI += 1; 
+		}
+		if(channelNumber == 2){
+			channelNumber = 0;
+			CH2 = 1;
+			int startPos = X * BLOCK_SIZE + Y;  // !!!!!!!!!!!!!!!!!!!
+			outerLoopCH2:
+			for(int i = 0; i < BLOCK_SIZE; i++){
+				int x = (startPos + i) / 16;
+				int y = (startPos + i) % 16;
+				int address = realAddress(x, y);
+				for(int j = 0; j < WORD_SIZE; j++){
+					channelDeviceBuffer[i * WORD_SIZE + j] = memory[address + j];
+					if(memory[address + j] == '$'){
+						break outerLoopCH2;
+					}
+				}
+			}
+			for(int i = 0; i < 64; i++){
+				if(channelDeviceBuffer[i] == '$'){
+					System.out.println();
+					break;
+				}
+				System.out.write(channelDeviceBuffer[i]);
+			}
+			CH2 = 0;
+			IOI += 2; 
+		}
+		if(channelNumber == 3){
+			channelNumber = 0;
+			CH3 = 1;
+			CH3 = 0;
+			IOI += 4;
+		}
+	}
+	public void stopProgram(){
+		System.exit(0);
 	}
     public void expect(String expectCommand, BufferedReader inputStream) throws Exception{
     	String command = inputStream.readLine();
@@ -492,6 +667,10 @@ public class Machine{
 		   		machine.pause();
 		   		machine.commandInterpreter();
 		   		machine.printMemory();
+		   		machine.TI -= 1;
+		   		
+		   		machine.startIO();
+		   		machine.checkInterrupt();
 		   		///Reiketu patikrinima ideti ar nebuvo interupt	
 		     }  
 		 //}catch(Exception e){
