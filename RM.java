@@ -4,6 +4,11 @@ import java.awt.Label;
 import java.awt.TextField;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.Random;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -31,20 +36,24 @@ public class RM {
 	private JTextField txt;
 	private JTable table_1;
 	private String filenames = "";
+	private int dataBloksNum = 0;
+	//private int pagingTablesNum = 4;
+	private final static int from = 61 * Machine.BLOCK_SIZE * Machine.WORD_SIZE;   // 61 - nuo kur prasideda psl lentele pirma
+	public int[] pagingNum = new int[3 * Machine.BLOCK_SIZE];
 	
 	JRadioButton[] fontButtons = new JRadioButton[3];
 	ButtonGroup    fontGroup = new ButtonGroup();
-
-
-
+	
 	/**
 	 * Launch the application.
 	 */
+	/*
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
 					RM window = new RM();
+					window.setPagingTable();
 					window.frmMm.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -52,7 +61,7 @@ public class RM {
 			}
 		});
 	}
-
+*/
 	/**
 	 * Create the application.
 	 */
@@ -88,21 +97,26 @@ public class RM {
 		rdbtnNewRadioButton_1.setBackground(new Color(248, 248, 255));
 		frmMm.getContentPane().add(rdbtnNewRadioButton_1);
 		
+		// REALIOS MASINOS ATMINTIES ISVALYMAS
 		JButton btnIvalytiAtmint = new JButton("I\u0161valyti atmint\u012F");
 		btnIvalytiAtmint.setBounds(464, 55, 128, 23);
 		btnIvalytiAtmint.setForeground(new Color(255, 255, 255));
 		btnIvalytiAtmint.setBackground(new Color(112, 128, 144));
 		btnIvalytiAtmint.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
+				
+				for(int row = 1; row < 66; row++){ 
+		    		for(int column = 1; column < 17; column++){
+		    			table_1.setValueAt("0000", row, column);
+		    		}
+		    	}
+				frmMm.validate();
+			    frmMm.getContentPane().repaint();
 			}
 		});
 		frmMm.getContentPane().add(btnIvalytiAtmint);
 		
-		JButton btnIvalytiRegistrus = new JButton("I\u0161valyti registrus");
-		btnIvalytiRegistrus.setBounds(464, 110, 128, 23);
-		btnIvalytiRegistrus.setForeground(new Color(255, 255, 255));
-		btnIvalytiRegistrus.setBackground(new Color(112, 128, 144));
-		frmMm.getContentPane().add(btnIvalytiRegistrus);
+		
 		
 		Label label_2 = new Label("Registrai");
 		label_2.setBounds(157, 28, 62, 22);
@@ -113,77 +127,107 @@ public class RM {
 		label_3.setBounds(167, 56, 38, 22);
 		frmMm.getContentPane().add(label_3);
 		
-		TextField textField = new TextField();
-		textField.setBounds(211, 56, 47, 22);
-		textField.setBackground(Color.LIGHT_GRAY);
-		textField.setForeground(Color.BLACK);
-		textField.setText("LABA");
-		frmMm.getContentPane().add(textField);
+		TextField textPLR = new TextField();
+		textPLR.setText("0000");
+		textPLR.setEditable(false);
+		textPLR.setEnabled(false);
+		textPLR.setBounds(211, 56, 47, 22);
+		textPLR.setBackground(Color.LIGHT_GRAY);
+		textPLR.setForeground(Color.BLACK);
+		frmMm.getContentPane().add(textPLR);
 		
 		Label label_4 = new Label("R");
 		label_4.setBounds(177, 84, 28, 22);
 		frmMm.getContentPane().add(label_4);
 		
-		TextField textField_1 = new TextField();
-		textField_1.setBounds(211, 84, 47, 22);
-		textField_1.setBackground(Color.LIGHT_GRAY);
-		textField_1.setText("jdll");
-		frmMm.getContentPane().add(textField_1);
+		TextField textR = new TextField();
+		textR.setText("0000");
+		textR.setEnabled(false);
+		textR.setEditable(false);
+		textR.setBounds(211, 84, 47, 22);
+		textR.setBackground(Color.LIGHT_GRAY);
+		frmMm.getContentPane().add(textR);
 		
 		Label label_5 = new Label("IC");
 		label_5.setBounds(177, 111, 28, 22);
 		frmMm.getContentPane().add(label_5);
 		
-		TextField textField_2 = new TextField();
-		textField_2.setBounds(211, 111, 47, 22);
-		textField_2.setEnabled(false);
-		textField_2.setEditable(false);
-		textField_2.setBackground(Color.LIGHT_GRAY);
-		frmMm.getContentPane().add(textField_2);
+		TextField textIC = new TextField();
+		textIC.setText("0000");
+		textIC.setEditable(false);
+		textIC.setBounds(211, 111, 47, 22);
+		textIC.setEnabled(false);
+		textIC.setBackground(Color.LIGHT_GRAY);
+		frmMm.getContentPane().add(textIC);
 		
 		Label label_6 = new Label("PI");
 		label_6.setBounds(264, 56, 28, 22);
 		frmMm.getContentPane().add(label_6);
 		
-		TextField textField_3 = new TextField();
-		textField_3.setBounds(296, 56, 47, 22);
-		textField_3.setEnabled(false);
-		textField_3.setEditable(false);
-		textField_3.setBackground(Color.LIGHT_GRAY);
-		frmMm.getContentPane().add(textField_3);
+		TextField textPI = new TextField();
+		textPI.setText("0000");
+		textPI.setBounds(296, 56, 47, 22);
+		textPI.setEnabled(false);
+		textPI.setEditable(false);
+		textPI.setBackground(Color.LIGHT_GRAY);
+		frmMm.getContentPane().add(textPI);
 		
 		Label label_7 = new Label("SI");
 		label_7.setBounds(264, 85, 22, 22);
 		frmMm.getContentPane().add(label_7);
 		
-		TextField textField_4 = new TextField();
-		textField_4.setBounds(296, 84, 47, 22);
-		textField_4.setEnabled(false);
-		textField_4.setEditable(false);
-		textField_4.setBackground(Color.LIGHT_GRAY);
-		frmMm.getContentPane().add(textField_4);
+		TextField textSI = new TextField();
+		textSI.setText("0000");
+		textSI.setBounds(296, 84, 47, 22);
+		textSI.setEnabled(false);
+		textSI.setEditable(false);
+		textSI.setBackground(Color.LIGHT_GRAY);
+		frmMm.getContentPane().add(textSI);
 		
 		Label label_8 = new Label("TI");
 		label_8.setBounds(264, 110, 22, 22);
 		frmMm.getContentPane().add(label_8);
 		
-		TextField textField_5 = new TextField();
-		textField_5.setBounds(296, 110, 47, 22);
-		textField_5.setEnabled(false);
-		textField_5.setEditable(false);
-		textField_5.setBackground(Color.LIGHT_GRAY);
-		frmMm.getContentPane().add(textField_5);
+		TextField textTI = new TextField();
+		textTI.setText("0000");
+		textTI.setBounds(296, 110, 47, 22);
+		textTI.setEnabled(false);
+		textTI.setEditable(false);
+		textTI.setBackground(Color.LIGHT_GRAY);
+		frmMm.getContentPane().add(textTI);
 		
 		Label label_9 = new Label("C");
 		label_9.setBounds(356, 56, 22, 22);
 		frmMm.getContentPane().add(label_9);
 		
-		TextField textField_6 = new TextField();
-		textField_6.setBounds(383, 56, 47, 22);
-		textField_6.setEnabled(false);
-		textField_6.setEditable(false);
-		textField_6.setBackground(Color.LIGHT_GRAY);
-		frmMm.getContentPane().add(textField_6);
+		TextField textC = new TextField();
+		textC.setText("FALSE");
+		textC.setBounds(383, 56, 47, 22);
+		textC.setEnabled(false);
+		textC.setEditable(false);
+		textC.setBackground(Color.LIGHT_GRAY);
+		frmMm.getContentPane().add(textC);
+		
+		// REGISTRU ISVALYMAS
+		JButton btnIvalytiRegistrus = new JButton("I\u0161valyti registrus");
+		btnIvalytiRegistrus.setBounds(464, 110, 128, 23);
+		btnIvalytiRegistrus.setForeground(new Color(255, 255, 255));
+		btnIvalytiRegistrus.setBackground(new Color(112, 128, 144));
+		btnIvalytiRegistrus.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+				textPLR.setText("0000");
+				textR.setText("0000");
+				textIC.setText("0000");
+				textPI.setText("0000");
+				textSI.setText("0000");
+				textTI.setText("0000");
+				textC.setText("0000");
+				frmMm.validate();
+			    frmMm.getContentPane().repaint();
+			}
+		});
+		frmMm.getContentPane().add(btnIvalytiRegistrus);
 		
 		txt = new JTextField();
 		txt.setText("");
@@ -205,11 +249,12 @@ public class RM {
 			
 		
 		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(30, 165, 562, 325);
+		scrollPane.setBounds(10, 165, 664, 325);
 		scrollPane.setBackground(Color.ORANGE);
 		frmMm.getContentPane().add(scrollPane);
 		
 		table_1 = new JTable();
+		table_1.setRowSelectionAllowed(false);
 		table_1.setBackground(Color.ORANGE);
 		table_1.setModel(new DefaultTableModel(
 			new Object[][] {
@@ -293,22 +338,36 @@ public class RM {
     	}
 		
 		JLabel lblkeltiIrVykdomi = new JLabel("\u012Ekelti ir \r\nvykdomi");
-		lblkeltiIrVykdomi.setBounds(617, 163, 117, 42);
+		lblkeltiIrVykdomi.setBounds(684, 163, 117, 42);
 		frmMm.getContentPane().add(lblkeltiIrVykdomi);
 		
 		JLabel lblFailai = new JLabel("failai:");
-		lblFailai.setBounds(617, 198, 46, 14);
+		lblFailai.setBounds(684, 191, 46, 14);
 		frmMm.getContentPane().add(lblFailai);
 		
 		JPanel panel = new JPanel();
 		panel.setBorder(new BevelBorder(BevelBorder.LOWERED, Color.DARK_GRAY, null, null, null));
-		panel.setBounds(617, 223, 117, 230);
+		panel.setBounds(684, 214, 117, 230);
 		frmMm.getContentPane().add(panel);
 		
+		// PATIKRINTI KOMANDAS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		btnPradti.addActionListener( new ActionListener()
 		{
 		    public void actionPerformed(ActionEvent e)
 		    {
+		    	// PALEIDZIA VM
+		    	// metodas, sudedantis i psl lentele random sk
+		    	// PAKEISTI!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+		    	// PADARYTI SU DAUG FAILU
+		    	Machine.PLR[0] = 0;
+		    	Machine.PLR[1] = 'E';
+		    	Machine.PLR[2] = 3;
+		    	Machine.PLR[3] = 'D';
+		    	textPLR.setText("0E3D");
+		    	
+		    	// nemest i cikla, kai daug failu bus !!!!!!!!!!!!!!!!!!
+		    	// mest i cikla, 1 - kelintas failas, po to is foro paimt ji
+		    	pagingTableNumbers(1, (60 + 2));  // 60 + 2 blokas, kuriame pirma psl lentele
 		        filenames = txt.getText();
 		        for (int i = 0; i < 1; i++) {
 					fontButtons[i] = new JRadioButton(txt.getText());
@@ -318,10 +377,102 @@ public class RM {
 				    // nurodome, kad vykdome pirma faila
 				    // !!!!!!!!!!!!!!!!!!!!! pradedame vykdyti VM
 				    fontButtons[0].setSelected(true);
-				    frmMm.validate();
+				    
+				    // NUSKAITO NORIMA FAILA
+				    BufferedReader inputStream = null;
+					try {
+						inputStream = new BufferedReader(new FileReader(Machine.filename));
+					} catch (FileNotFoundException e4) {
+						// TODO Auto-generated catch block
+						e4.printStackTrace();
+					}
+			    	
+			    	try {
+						expect("$WOW",inputStream);
+						expect(".NAM ", inputStream);
+						expect(".DAT ", inputStream);
+					} catch (Exception e4) {
+						// TODO Auto-generated catch block
+						e4.printStackTrace();
+					}
+			    	
+			    	int dataCounter = 0;
+			    	
+			    	// visa uzpildom nuliais
+			    	for(int row = 1; row < 17; row++){ 
+			    		for(int column = 1; column < 17; column++){
+			    			
+			    			table_1.setValueAt("0000", row, column);
+			    		}
+			    	}
+			    	
+			    	int dataIndex = 0;
+			    	int row = row = 17 - dataBloksNum;
+			    	int column = 1;
+			    	String command = "";
+					try {
+						while(!(command  = inputStream.readLine()).startsWith("$WRT")){
+							/*for(int i = 0; i < Machine.WORD_SIZE; i++){
+								memory[(Machine.BLOCK_SIZE * Machine.BLOCK_SIZE * Machine.WORD_SIZE) - 
+								       (dataBloksNum * Machine.BLOCK_SIZE * Machine.WORD_SIZE) + dataIndex] = (byte) command.charAt(i);
+								dataIndex++;  // !!!! pachekinti  
+							}*/
+							table_1.setValueAt(command, row, column);
+							column++;
+							// PACHECKINTI KIEK YRA MAX< KAD NEUZEIT UZ RIBU
+							if(column == 17){ 
+								row++;
+								column = 1;
+							}
+						}
+					} catch (IOException e3) {
+						// TODO Auto-generated catch block
+						e3.printStackTrace();
+					}
+			    	
+			    	// WRT
+			    	int index = 0;
+			    	row = 1;
+			    	column = 1;
+			    	try {
+						while(!(command = inputStream.readLine()).startsWith("$END")){
+							//address = realAddress(row,column);
+							table_1.setValueAt(command, row, column);
+							column++;
+							if(column == 17){ 
+								row++;
+								column = 1;
+							}
+							/*System.out.println(command);
+							for(int i = 0; i < command.length(); i++){      // patikrinimas su 4
+								memory[index] = (byte) command.charAt(i);
+								if((index - 1) < BLOCKS * BLOCK_SIZE * WORD_SIZE){
+									index++;
+								}else{
+									index = 0;
+								}
+							}*/
+						}
+					} catch (IOException e2) {
+						// TODO Auto-generated catch block
+						e2.printStackTrace();
+					}
+			    		
+			    	// END
+			    	try {
+						inputStream.close();
+					} catch (IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+			    	   	
+			    	frmMm.validate();
 				    frmMm.getContentPane().repaint();
 				    Machine.filename = txt.getText();
 				    Machine.main();
+				    for(int j = 0; j < 4096; j++){
+				    	System.out.println(Machine.memory[j]);
+				    }
 				} 
 		    }
 		});
@@ -329,7 +480,55 @@ public class RM {
 		
 		System.out.println(panel.getComponentCount());
 		
-		frmMm.setBounds(100, 100, 760, 602);
+		frmMm.setBounds(100, 100, 827, 602);
 		frmMm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
+	public void setPagingTable(){
+		for(int i = 0; i < pagingNum.length; i++){
+			pagingNum[i] = i;
+		}
+		int counter = 0;
+		Random randomGenerator = new Random(System.currentTimeMillis());
+		for(int i = 0; i < pagingNum.length; i++){
+			int random = randomGenerator.nextInt(pagingNum.length - counter++);
+			swap(i, random + i);
+		}
+	}
+	public void swap(int from, int to){
+		int temp = pagingNum[from];
+		pagingNum[from] = pagingNum[to];
+		pagingNum[to] = temp;
+	}
+	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	public void pagingTableNumbers(int vmCounter, int row){
+		/*for(int i = 0; i < Machine.BLOCK_SIZE; i++){
+			Machine.memory[from + i] = (byte) random;
+		}*/
+		int index = vmCounter * Machine.BLOCK_SIZE - Machine.BLOCK_SIZE;
+	 	for(int column = 1; column < 17; column++){
+	    	table_1.setValueAt(new Integer(pagingNum[index]).toHexString(pagingNum[index]).toUpperCase(), row, column);
+	   		System.out.println("RANDOM " + new Integer(pagingNum[index]).toHexString(pagingNum[index]).toUpperCase());	
+	   		Machine.memory[((61 * 16 + index))] = (byte) pagingNum[index];
+	   		index++;
+	 	}
+	}
+	public int realAddress(int x, int y){
+		int pagingTableAdr = Machine.BLOCK_SIZE * Machine.PLR[2] + Machine.PLR[3];
+		//int pagingTableNum = paging
+		
+		return 0;
+	
+		 
+	}
+	
+	public void expect(String expectCommand, BufferedReader inputStream) throws Exception{
+    	String command = inputStream.readLine();
+    	if(command.startsWith((expectCommand))){
+    		if(expectCommand == ".DAT "){
+    			dataBloksNum = Character.getNumericValue(command.charAt(5));  // kas po to seka - ignoruojama
+    		}
+    	}else{
+    		throw new Exception("Invalid command " + command + " expected " + expectCommand);
+    	}
+    }
 }

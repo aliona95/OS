@@ -92,66 +92,63 @@ public class VM {
 		label_2.setBounds(157, 28, 62, 22);
 		frmVm.getContentPane().add(label_2);
 		
-		Label label_3 = new Label("PLR");
-		label_3.setBounds(167, 56, 38, 22);
+		Label label_3 = new Label("AX");
+		label_3.setBounds(177, 56, 28, 22);
 		frmVm.getContentPane().add(label_3);
 		
 		TextField textField = new TextField();
+		textField.setText("0000");
+		textField.setEditable(false);
+		textField.setEnabled(false);
 		textField.setBackground(Color.LIGHT_GRAY);
 		textField.setForeground(Color.BLACK);
 		textField.setBounds(211, 56, 47, 22);
 		frmVm.getContentPane().add(textField);
 		
-		Label label_4 = new Label("R");
+		Label label_4 = new Label("BX");
 		label_4.setBounds(177, 84, 28, 22);
 		frmVm.getContentPane().add(label_4);
 		
 		TextField textField_1 = new TextField();
+		textField_1.setText("0000");
+		textField_1.setEnabled(false);
+		textField_1.setEditable(false);
 		textField_1.setBackground(Color.LIGHT_GRAY);
 		textField_1.setBounds(211, 84, 47, 22);
 		frmVm.getContentPane().add(textField_1);
 		
-		Label label_5 = new Label("IC");
-		label_5.setBounds(177, 111, 28, 22);
-		frmVm.getContentPane().add(label_5);
-		
-		TextField textField_2 = new TextField();
-		textField_2.setBackground(Color.LIGHT_GRAY);
-		textField_2.setBounds(211, 111, 47, 22);
-		frmVm.getContentPane().add(textField_2);
-		
-		Label label_6 = new Label("PI");
+		Label label_6 = new Label("IC");
 		label_6.setBounds(264, 56, 28, 22);
 		frmVm.getContentPane().add(label_6);
 		
 		TextField textField_3 = new TextField();
+		textField_3.setText("0000");
+		textField_3.setEnabled(false);
+		textField_3.setEditable(false);
 		textField_3.setBackground(Color.LIGHT_GRAY);
 		textField_3.setBounds(296, 56, 47, 22);
 		frmVm.getContentPane().add(textField_3);
 		
-		Label label_7 = new Label("SI");
+		Label label_7 = new Label("C");
 		label_7.setBounds(264, 85, 22, 22);
 		frmVm.getContentPane().add(label_7);
 		
 		TextField textField_4 = new TextField();
+		textField_4.setText("FALSE");
+		textField_4.setEnabled(false);
+		textField_4.setEditable(false);
 		textField_4.setBackground(Color.LIGHT_GRAY);
 		textField_4.setBounds(296, 84, 47, 22);
 		frmVm.getContentPane().add(textField_4);
 		
-		Label label_8 = new Label("TI");
-		label_8.setBounds(264, 110, 22, 22);
-		frmVm.getContentPane().add(label_8);
-		
-		TextField textField_5 = new TextField();
-		textField_5.setBackground(Color.LIGHT_GRAY);
-		textField_5.setBounds(296, 110, 47, 22);
-		frmVm.getContentPane().add(textField_5);
-		
-		Label label_9 = new Label("C");
+		Label label_9 = new Label("SF");
 		label_9.setBounds(356, 56, 22, 22);
 		frmVm.getContentPane().add(label_9);
 		
 		TextField textField_6 = new TextField();
+		textField_6.setText("0000");
+		textField_6.setEnabled(false);
+		textField_6.setEditable(false);
 		textField_6.setBackground(Color.LIGHT_GRAY);
 		textField_6.setBounds(383, 56, 47, 22);
 		frmVm.getContentPane().add(textField_6);
@@ -189,7 +186,6 @@ public class VM {
 		// !!!!! UZSETINTI VISA LENTELE NULIAIS
 		//table.setValueAt("hshj", 6, 7);
 		table.setBackground(new Color(255, 215, 0));
-		
 		table.setBounds(30, 177, 636, 272);
 		frmVm.getContentPane().add(table);
 		frmVm.setBounds(100, 100, 703, 510);

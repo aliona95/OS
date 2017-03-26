@@ -2,6 +2,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Random;
 
 /**
  * 
@@ -11,18 +12,22 @@ import java.io.IOException;
  */
 public class Machine{
 	public final static int WORD_SIZE = 4;
-	private final static int BLOCK_SIZE = 16;
-	private final static int BLOCKS = 70;
-	private static int dataBloksNum = 0;
+	public final static int BLOCK_SIZE = 16;
+	public final static int USER_BLOCKS = 48;
+	private final static int BLOCKS = 64;
+	public int[] pagingTablesNum = new int[3 * BLOCK_SIZE];
 	
-	private final static byte memory[] = new byte[BLOCKS * BLOCK_SIZE * WORD_SIZE];
+	private static int dataBlocksNum = 0;
+	
+	public final static byte memory[] = new byte[BLOCKS * BLOCK_SIZE * WORD_SIZE];
 	private VM vm[];
+	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	public static String filename = "failas.txt";
 	
-	private final byte PLR[] = new byte[WORD_SIZE];
+	public final static byte PLR[] = new byte[WORD_SIZE];
 	private final byte AX[]  = new byte[WORD_SIZE];
     private final byte BX[]  = new byte[WORD_SIZE];
-    private final byte IC[]  = {48, 48};  // kelinta komanda vykdoma
+    private final byte IC[]  = {0, 0};  // kelinta komanda vykdoma
     private byte C;             
     private byte SF;
     private byte MODE;
@@ -33,51 +38,97 @@ public class Machine{
     private byte PI;
     private byte SI;
     private byte TI;
+    
+    
   
     // !!!!!!!!!! CLOSE FILE
     // !!!!!!!!!! nuimti patikrinimus
     private void loader(String fileName) throws Exception{
+    	///Irasome psl. lenteles skaicius.
+    	for(int i = 0; i < BLOCK_SIZE; i++){
+    		memory[BLOCK_SIZE * WORD_SIZE * (PLR[2] * 10 + PLR[3]) + i * WORD_SIZE] = (byte) pagingTablesNum[i]; 
+    		System.out.println("Paging table num " + pagingTablesNum[i]);
+    	}
+    	//System.out.println("MEMORY SK" + BLOCK_SIZE * WORD_SIZE * (PLR[2]*10+PLR[3]));
+    	
     	String command;
     	BufferedReader inputStream = new BufferedReader(new FileReader(fileName));
-    	
+    	int dat[] = new int[2];
+    	int code[] = new int[2];
+    	code[0] = 0;
+    	code[1] = 0;
+    
     	expect("$WOW",inputStream);
     	expect(".NAM ", inputStream);
     	expect(".DAT ", inputStream);
     	
-    	int dataCounter = 0;
     	
-    	int dataIndex = 0;
+    	//System.out.println("DataBlocksNum" + dataBlocksNum);
+    	dat[0] = BLOCK_SIZE - dataBlocksNum;
+    	//System.out.println("DAT[0] = " +dat[0]);
+    	dat[1] = 0;
+    	int dataSegment = dat[0];
     	while(!(command = inputStream.readLine()).startsWith("$WRT")){
-    		for(int i = 0; i < WORD_SIZE; i++){
-    			memory[(BLOCK_SIZE * BLOCK_SIZE * WORD_SIZE) - (dataBloksNum * BLOCK_SIZE * WORD_SIZE) + dataIndex] = (byte) command.charAt(i);
-    			dataIndex++;  // !!!! pachekinti  
-    		}
+    		writeToMemory(command, dat);
+    		dat = nextAddr(dat);
     	}
     	
     	// WRT
     	int index = 0;
     	while(!(command = inputStream.readLine()).startsWith("$END")){
-    		System.out.println(command);
-    		for(int i = 0; i < command.length(); i++){      // patikrinimas su 4
-    			memory[index] = (byte) command.charAt(i);
-    			if((index - 1) < BLOCKS * BLOCK_SIZE * WORD_SIZE){
-        			index++;
-        		}else{
-        			index = 0;
-        		}
+    	// patikrinimas su 4 !!!!!!!!!!!!!!!!!!!!!!!!!!
+    		writeToMemory(command, code);
+    		System.out.println("DATA SEGMENT" + dataSegment);
+    		System.out.println("CODe" + code[0]);
+    		if(code[0] == dataSegment){
+    			throw new Exception("Virtual machine has no more space");
+    		}else{
+    			code = nextAddr(code);	
     		}
     	}
     		
     	// END
     	inputStream.close();
     }
-    public void commandInterpreter(int memoryIndex){  // !!!!!! padaryti per realu adr su IC
-    	String command = "";
+    public void writeToMemory(String command, int[] memCoord){
+    	int address = realAddress(memCoord[0], memCoord[1]);
+    	//System.out.println("REAL ADDRESS " + address);
     	for(int i = 0; i < WORD_SIZE; i++){
-    		command += (char)memory[memoryIndex + i];
+    		memory[address + i] = (byte) command.charAt(i); 
     	}
-    	
+    }
+    public int realAddress(int x, int y) {
+		int pagingTableAddr = (((int)PLR[2]) * 10 + (int)PLR[3]) * BLOCK_SIZE * WORD_SIZE;
+		System.out.println("PAGING TABLE ADDRESS " + pagingTableAddr);
+	    int pagingRandomNumber = memory[pagingTableAddr + x * 4]; 
+	    System.out.println("PAGING RANDOM NUMBER " + pagingRandomNumber);
+	    return pagingRandomNumber * BLOCK_SIZE + y * WORD_SIZE;  
+	}
+    public int[] nextAddr(int[] code) throws Exception{
+    	int x = code[0];
+    	int y = code[1];
+    	y++;
+    	//System.out.println(code[0]);
+    	//System.out.println(code[1]);
+    	if(y > 15){
+    		x++;
+    		y = 0;
+    	}
+    	if(x > 15){
+    		throw new Exception("Virtual memory has no more space");
+    	}
+    	code[0] = x;
+    	code[1] = y;
+    	return code;
+    }
+    public void commandInterpreter() throws Exception{  // !!!!!! padaryti per realu adr su IC
+    	String command = "";
+    	int address = realAddress(IC[0], IC[1]);
+    	for(int i = 0; i < WORD_SIZE; i++){
+    		command += (char)memory[address + i];
+    	}
     	String commandStart = command;
+    	System.out.println("KOMANDA " + command);
     	switch(commandStart.substring(0, 2)){  // paimame pirmus 2 komandos simbolius
     		// ATMINTIES KOMANDOS
     		case "LA":
@@ -116,10 +167,6 @@ public class Machine{
     					break;
     				}
     			}
-    		//// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    		case "AW":
-    			commandAW();        // reikia BX priskirti visa zodi, dar 2 papildomi simboliai turi buti
-    			break;
     		// ARITMETINES KOMANDOS
     		case "AA":
     						//  !!!!! nepadaryta su perpildymu
@@ -152,15 +199,20 @@ public class Machine{
     			break;
     		// VALDYMO PERDAVIMO KOMANDOS
     		case "JP":
-    			commandJP(command.charAt(2),command.charAt(3));
+    			commandJP(Character.getNumericValue(command.charAt(2)), 
+					  	  Character.getNumericValue(command.charAt(3)));
     			break;
     		case "JE":
-    				
+    			commandJE(Character.getNumericValue(command.charAt(2)), 
+					  	  Character.getNumericValue(command.charAt(3)));	
     			break;
     		case "JL":
-    			
+    			commandJL(Character.getNumericValue(command.charAt(2)), 
+					  	  Character.getNumericValue(command.charAt(3)));
     			break;
     		case "JG":
+    			commandJG(Character.getNumericValue(command.charAt(2)), 
+					  	  Character.getNumericValue(command.charAt(3)));
     			break;
     	    //ISVEDIMO IR IVEDIMO KOMANDOS
     		case "OP":
@@ -170,105 +222,172 @@ public class Machine{
     		// PABAIGA
     		case "HALT":
     			commandHALT();
+    			break;
     		default:
-    			// padarysim exception
+    			throw new Exception("Unknow command");
     	}
     }
     
     // KOMANDOS
     // ATMINTIES KOMANDOS
     public void commandLA(int x, int y){
+    	incIC();
+    	clearC();
+    	int address = realAddress(x,y);
     	for(int i = 0; i < WORD_SIZE; i++){
-    		AX[i] = memory[x * BLOCK_SIZE * WORD_SIZE + y + i];
+    		AX[i] = memory[address + i];
     	}
     }
     public void commandLAFB(){
+    	incIC();
+    	clearC();
     	for(int i = 0; i < WORD_SIZE; i++){
     		AX[i] = BX[i];
     	}
     }
     public void commandLB(int x, int y){
+    	incIC();
+    	clearC();
+    	int address = realAddress(x,y);
     	for(int i = 0; i < WORD_SIZE; i++){
-    		BX[i] = memory[x * BLOCK_SIZE * WORD_SIZE + y + i];
+    		BX[i] = memory[address + i];
     	}
     }
     public void commandLBFA(){
+    	incIC();
+    	clearC();
     	for(int i = 0; i < WORD_SIZE; i++){
     		BX[i] = AX[i];
     	}
     }
     public void commandSA(int x, int y){
+    	incIC();
+    	clearC();
+    	int address = realAddress(x,y);
     	for(int i = 0; i < WORD_SIZE; i++){
-    		memory[x * BLOCK_SIZE * WORD_SIZE + y + i] = AX[i];
+    		memory[address + i] = AX[i];
     	}
     }
     public void commandSB(int x, int y){
+    	incIC();
+    	clearC();
+    	int address = realAddress(x,y);
     	for(int i = 0; i < WORD_SIZE; i++){
-    		memory[x * BLOCK_SIZE * WORD_SIZE + y + i] = BX[i];
+    		memory[address + i] = BX[i];
     	}
     }
     public void commandCOPA(){
+    	incIC();
+    	clearC();
     	for(int i = 0; i < WORD_SIZE; i++){
     		AX[i] = BX[i];
     	}
     }
     public void commandCOPB(){
+    	incIC();
+    	clearC();
     	for(int i = 0; i < WORD_SIZE; i++){
     		BX[i] = AX[i];
     	}
     }
-    public void commandAW(){
-    	/////////////////////////////
-    }
     // ARITMETINES KOMANDOS
     public void commandAA(int x, int y){
+    	incIC();
+    	clearC();
+    	int address = realAddress(x,y);
     	for(int i = 0; i < WORD_SIZE; i++){
-    		AX[i] += memory[x * BLOCK_SIZE * WORD_SIZE + y + i];
+    		AX[i] += memory[address + i];
     	}
     }
     public void commandAB(int x, int y){
+    	incIC();
+    	clearC();
+    	int address = realAddress(x,y);
     	for(int i = 0; i < WORD_SIZE; i++){
-    		BX[i] += memory[x * BLOCK_SIZE * WORD_SIZE + y + i];
+    		BX[i] += memory[address + i];
     	}
     }
     public void commandBA(int x, int y){
+    	incIC();
+    	clearC();
+    	int address = realAddress(x,y);
     	for(int i = 0; i < WORD_SIZE; i++){
-    		AX[i] -= memory[x * BLOCK_SIZE * WORD_SIZE + y + i];
+    		AX[i] -= memory[address + i];
     	}
     }
     public void commandBB(int x, int y){
+    	incIC();
+    	clearC();
+    	int address = realAddress(x,y);
     	for(int i = 0; i < WORD_SIZE; i++){
-    		BX[i] -= memory[x * BLOCK_SIZE * WORD_SIZE + y + i];
+    		BX[i] -= memory[address + i];
     	}
     }
     // LOGINES KOMANDOS
-    public void commandCB(int x, int y){
+    public void commandCA(int x, int y){
+    	incIC();
+    	clearC();
+    	int address = realAddress(x,y);
     	int correct = 0;
     	for(int i = 0; i < WORD_SIZE; i++){
-    		if(BX[i] == memory[x * BLOCK_SIZE * WORD_SIZE + y + i]){
+    		if(AX[i] == memory[address + i]){
     			correct++;
     		}
     	}
     	if (correct == WORD_SIZE){
-    		SF = 8;         // ?????????????
+    		setC();
+    		setZF();
+    	}else{
+    		clearZF();
+    		clearC();
     	}
     }
-    public void commandCA(int x, int y){
+    public void commandCB(int x, int y){
+    	incIC();
+    	clearC();
+    	int address = realAddress(x,y);
     	int correct = 0;
     	for(int i = 0; i < WORD_SIZE; i++){
-    		if(AX[i] == memory[x * BLOCK_SIZE * WORD_SIZE + y + i]){
+    		if(BX[i] == memory[address + i]){
     			correct++;
     		}
     	}
     	if (correct == WORD_SIZE){
-    		SF = 8;         // ?????????????
+    		setC();
+    		setZF();
+    	}else{
+    		clearZF();
+    		clearC();
     	}
     }
     // VALDYMO PERDAVIMO
-    public void commandJP(char x, char y){
+    public void commandJP(int x, int y){
     	IC[0] = (byte)x;
     	IC[1] = (byte)y;
-    	IC[1] -= 1;  ///cia tam kad gali buti klaidu su IC nes poto mes ji papliusinam
+    }
+    public void commandJE(int x, int y){
+    	if(getBit(3) == 1){
+    		IC[0] = (byte)x;
+        	IC[1] = (byte)y;
+    	}else{
+    		incIC();
+    	}
+    }
+    public void commandJL(int x, int y){
+    	if(getBit(3) == 0 && getBit(4) == getBit(2)){
+    		IC[0] = (byte)x;
+        	IC[1] = (byte)y;
+    	}else{
+    		incIC();
+    	}
+    }
+    public void commandJG(int x, int y){
+    	if(getBit(3) == 0 && getBit(4) != getBit(2)){
+    		IC[0] = (byte)x;
+        	IC[1] = (byte)y;
+    	}else{
+    		incIC();
+    	}
     }
     //ISVEDIMO IR IVEDIMO KOMANDOS
     public void commandOP(int x, int y){
@@ -279,23 +398,62 @@ public class Machine{
     	SI = 3;
     }
     public void incIC(){
-    	IC[1] += 1;   					 // !!!! padaryt IC[0]
+    	IC[1]++;
+    	if(IC[1] > 15){
+    		IC[0]++;
+    		IC[1] = 0;
+    	}
     }
- 
+    // PAGING TABLE
+    public void setPagingTable(){
+		for(int i = 0; i < pagingTablesNum.length; i++){
+			pagingTablesNum[i] = i;
+		}
+		int counter = 0;
+		Random randomGenerator = new Random(System.currentTimeMillis());
+		for(int i = 0; i < pagingTablesNum.length; i++){
+			int random = randomGenerator.nextInt(pagingTablesNum.length - counter++);
+			swap(i, random + i);
+		}
+	}
+	public void swap(int from, int to){
+		int temp = pagingTablesNum[from];
+		pagingTablesNum[from] = pagingTablesNum[to];
+		pagingTablesNum[to] = temp;
+	}
+	public void setZF(){
+		SF = (byte) (SF | (1 << 3));
+	}
+	public void clearZF(){
+		SF = (byte) (SF & ~(1 << 3));
+	}
+	public void clearC(){
+		C = 0;
+	}
+	public void setC(){
+		C = 1;
+	}
+	public int getBit(int pos){
+		return(SF >> pos) & 1;
+	}
     public void expect(String expectCommand, BufferedReader inputStream) throws Exception{
     	String command = inputStream.readLine();
     	if(command.startsWith((expectCommand))){
     		if(expectCommand == ".DAT "){
-    			dataBloksNum = Character.getNumericValue(command.charAt(5));  // kas po to seka - ignoruojama
+    			if(command.length() == 6){
+    				dataBlocksNum = Integer.parseInt(command.substring(5)); 
+    			}else if(command.length() > 6){
+    				dataBlocksNum = Integer.parseInt(command.substring(5, command.length())); 
+    			}
     		}
     	}else{
     		throw new Exception("Invalid command " + command + " expected " + expectCommand);
     	}
     }
     public void printMemory(){
-    	for(int i = 0; i < 1024; i++){
-			 System.out.println(i + "| " + (char)memory[i]);
-		 }
+    	for(int i = 0; i < BLOCKS * BLOCK_SIZE * WORD_SIZE; i++){
+    		System.out.println(i + "| " + (char)memory[i]);
+		}
     }
     public void printRegisters(){
     	System.out.println("AX = " + AX[0] + " " + AX[1] + " " + AX[2] + " " + AX[3]);
@@ -307,19 +465,19 @@ public class Machine{
     	System.out.println("Press any key to continue");
     	new java.util.Scanner(System.in).nextLine();
     }
-    public int realAddress(char x, char y){
-    
-    	return 0;
-    }
-	public static void main(){
-		 try{
+	public static void main(String[] args) throws Exception{
+		// try{
+			 PLR[2] = 6; 
+			 PLR[3] = 1;
 			 Machine machine = new Machine();
+			 machine.setPagingTable();
 			 machine.loader(filename);
-			 machine.printMemory();
+			 //machine.printMemory();
+			 
 			 //machine.vm[0] = new VM();
 			 
-			 VM vm = new VM();
-			 vm.vm(filename);   //????????
+			 //VM vm = new VM();
+			 //vm.vm(filename);   //????????
 			 //vm.checkCommands(/*filename*/);
 			 //vm.getTable().setValueAt(1417, 1, 1);
 			 
@@ -328,22 +486,16 @@ public class Machine{
 			// reikia inicializuoti viska 0 pradzioje
 			// parasyti kuri virtuali masina yra uzkrauta 
 			// KOMANDU VYKDYMAS
-			int memoryIndex = 0;
-	/*	    while(true){
-		    	memoryIndex = (int)machine.IC[1] - '0';
-		      	//System.out.println("MEMORY INDEX " + memoryIndex);
-		    	memoryIndex *= WORD_SIZE;
-		    	System.out.println("MEMORY INDEX " + memoryIndex);
+			 
+		    while(true){
 		   		machine.printRegisters();
 		   		machine.pause();
-		   		machine.commandInterpreter(memoryIndex);
-		   		//memoryIndex += 4;
-		   		machine.incIC();
+		   		machine.commandInterpreter();
+		   		machine.printMemory();
 		   		///Reiketu patikrinima ideti ar nebuvo interupt	
 		     }  
-	*/
-		 }catch(Exception e){
-			 System.out.println(e.toString());
-		 }
+		 //}catch(Exception e){
+			// System.out.println(e.toString());
+		// }
 	}
 }
