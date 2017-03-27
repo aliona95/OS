@@ -32,7 +32,7 @@ import javax.swing.UIManager;
 public class VM {
 
 	private JFrame frmVm;
-	private JTable table;
+	public static JTable table;
 	private int dataBloksNum = 0;
 
 	/**
@@ -197,74 +197,41 @@ public class VM {
 	}
 	*/
 	// IS TIKRUJU PACHECKINTI
-	public void checkCommands(String filename) throws Exception{
-		String command;
-    	BufferedReader inputStream = new BufferedReader(new FileReader(filename));
-    	
-    	expect("$WOW",inputStream);
-    	expect(".NAM ", inputStream);
-    	expect(".DAT ", inputStream);
-    	
-    	int dataCounter = 0;
-    	
+	public void checkCommands(String filename) throws Exception{	
     	// visa uzpildom nuliais
     	for(int row = 1; row < 17; row++){ 
     		for(int column = 1; column < 17; column++){
     			table.setValueAt("0000", row, column);
     		}
     	}
-    	
-    	int dataIndex = 0;
-    	int row = row = 17 - dataBloksNum;
-    	int column = 1;
-    	while(!(command = inputStream.readLine()).startsWith("$WRT")){
-    		/*for(int i = 0; i < Machine.WORD_SIZE; i++){
-    			memory[(Machine.BLOCK_SIZE * Machine.BLOCK_SIZE * Machine.WORD_SIZE) - 
-    			       (dataBloksNum * Machine.BLOCK_SIZE * Machine.WORD_SIZE) + dataIndex] = (byte) command.charAt(i);
-    			dataIndex++;  // !!!! pachekinti  
-    		}*/
-    		table.setValueAt(command, row, column);
-    		column++;
-    		// PACHECKINTI KIEK YRA MAX< KAD NEUZEIT UZ RIBU
-    		if(column == 17){ 
-    			row++;
-    			column = 1;
-    		}
-    	}
-    	
-    	// WRT
-    	int index = 0;
-    	row = 1;
-    	column = 1;
-    	while(!(command = inputStream.readLine()).startsWith("$END")){
-    		table.setValueAt(command, row, column);
-    		column++;
-    		if(column == 17){ 
-    			row++;
-    			column = 1;
-    		}
-    		/*System.out.println(command);
-    		for(int i = 0; i < command.length(); i++){      // patikrinimas su 4
-    			memory[index] = (byte) command.charAt(i);
-    			if((index - 1) < BLOCKS * BLOCK_SIZE * WORD_SIZE){
-        			index++;
-        		}else{
-        			index = 0;
-        		}
-    		}*/
-    	}
-    		
-    	// END
-    	inputStream.close();
 	}
-	public void expect(String expectCommand, BufferedReader inputStream) throws Exception{
-    	String command = inputStream.readLine();
-    	if(command.startsWith((expectCommand))){
-    		if(expectCommand == ".DAT "){
-    			dataBloksNum = Character.getNumericValue(command.charAt(5));  // kas po to seka - ignoruojama
+	public static void printMemory(){
+		String memory = "";
+		for(int row = 1; row < 17; row++){ 
+    		for(int column = 1; column < 17; column++){
+    			int address = Machine.realAddress(row - 1, column - 1);
+    			System.out.println("GAUNAMOS VM ADDRESAI X" + (row - 1) +" Y " + (column - 1));
+    			//System.out.println("VM MASINA-------- "+ address);
+    			for(int i = 0; i < Machine.WORD_SIZE; i++){
+    				memory += (char)Machine.memory[address + i];
+        		}
+    			System.out.println("memory " +memory);
+    			table.setValueAt(memory, row, column);
+    			memory = "";
     		}
-    	}else{
-    		throw new Exception("Invalid command " + command + " expected " + expectCommand);
     	}
-    }
+		/*String memory = "";
+		for(int row = 1; row < 17; row++){
+			for(int column = 1; column < 17; column++){
+				int address = Machine.realAddress(row - 1, column - 1);
+				for(int i = 0; i < Machine.WORD_SIZE; i++){
+					memory += (char) Machine.memory[address + i];
+	    		}
+				System.out.println("ADRESAS!!!!!!!!!!!!!!!!!!!!!!!!!!!! " + address);
+				table.setValueAt(memory, row, column);
+				memory = "";
+			}
+			
+		}*/
+	}
 }

@@ -11,7 +11,7 @@ import java.util.Random;
  *  
  *  
  */
-public class Machine{
+public class Machine implements Runnable{
 	public final static int WORD_SIZE = 4;
 	public final static int BLOCK_SIZE = 16;
 	public final static int USER_BLOCKS = 48;
@@ -24,13 +24,14 @@ public class Machine{
 	public final static byte memory[] = new byte[BLOCKS * BLOCK_SIZE * WORD_SIZE];
 	private VM vm[];
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	public static String[] filenames;
 	public static String filename = "failas.txt";
 	
 	public final static byte PLR[] = new byte[WORD_SIZE];
-	private final byte AX[]  = new byte[WORD_SIZE];
-    private final byte BX[]  = new byte[WORD_SIZE];
-    private final byte IC[]  = {0, 0};  // kelinta komanda vykdoma
-    private byte C;             
+	public static final byte AX[]  = new byte[WORD_SIZE];
+	public static final byte BX[]  = new byte[WORD_SIZE];
+	public static final byte IC[]  = {0, 0};  // kelinta komanda vykdoma
+	public static byte C;             
     private byte SF; // X X X X CF ZF X X  
     private byte MODE;
     private byte CH1;
@@ -96,7 +97,7 @@ public class Machine{
     		memory[address + i] = (byte) command.charAt(i); 
     	}
     }
-    public int realAddress(int x, int y) {
+    public static int realAddress(int x, int y) {
 		int pagingTableAddr = (((int) PLR[2]) * 10 + (int) PLR[3]) * BLOCK_SIZE * WORD_SIZE;
 		//System.out.println("PAGING TABLE ADDRESS " + pagingTableAddr);
 	    int pagingRandomNumber = memory[pagingTableAddr + x * 4]; 
@@ -752,9 +753,14 @@ public class Machine{
     	}
     }
     public void printMemory(){
-    	for(int i = 0; i < BLOCKS * BLOCK_SIZE * WORD_SIZE; i++){
+   /* 	for(int i = 0; i < BLOCKS * BLOCK_SIZE * WORD_SIZE; i++){
     		System.out.println(i + "| " + (char)memory[i]);
 		}
+	*/
+    	RM.printMemory();
+    	VM.printMemory();
+    	
+    	
     }
     public void printRegisters(){
     	System.out.println("AX = " + (Integer.toHexString(unsignedToBytes(AX[0])).toUpperCase()) + " " + 
@@ -763,7 +769,6 @@ public class Machine{
     	System.out.println("BX = " + (Integer.toHexString(BX[0]).toUpperCase()) + " " + 
         	Integer.toHexString(BX[1]).toUpperCase() +" " + Integer.toHexString(BX[2]).toUpperCase()
         	+ " " + Integer.toHexString(BX[3]).toUpperCase());
-        
     	/*
     	System.out.println("AX = " + unsignedToBytes(AX[0]) + " " + unsignedToBytes(AX[1]) + " " + AX[2] + " " + AX[3]);
     	System.out.println("BX = " + BX[0] + " " + BX[1] + " " + BX[2] + " " + BX[3]);
@@ -772,6 +777,7 @@ public class Machine{
     	System.out.println("IC = " + (Integer.toHexString(IC[0]).toUpperCase()) + " " + 
         	Integer.toHexString(IC[1]).toUpperCase());
     	System.out.println("C  = " + C);
+    	RM.printRegisters();
     }
     public static int unsignedToBytes(byte b){
     	return b & 0XFF;
@@ -780,21 +786,24 @@ public class Machine{
     	System.out.println("Press any key to continue");
     	new java.util.Scanner(System.in).nextLine();
     }
-	public static void main(String[] args) throws Exception{
-		// try{
-			 PLR[2] = 6; 
-			 PLR[3] = 1;
-			 Machine machine = new Machine();
-			 Loader loader = new Loader();
-			 loader.checkCommands(filename);
-			 machine.setPagingTable();
-			 machine.loader(filename);
+	public void run(){
+		try{
+			filename = filenames[0];
+			System.out.println("AS CIA");
+			
+		//	PLR[2] = 6; 
+		//	PLR[3] = 1;
+			Machine machine = new Machine();
+			Loader loader = new Loader();
+			loader.checkCommands(filename);
+			machine.setPagingTable();
+			machine.loader(filename);
 			 //machine.printMemory();
 			 
 			 //machine.vm[0] = new VM();
 			 
-			 //VM vm = new VM();
-			 //vm.vm(filename);   //????????
+			 VM vm = new VM();
+			 vm.vm(filename);   //????????
 			 //vm.checkCommands(/*filename*/);
 			 //vm.getTable().setValueAt(1417, 1, 1);
 			 
@@ -803,20 +812,20 @@ public class Machine{
 			// reikia inicializuoti viska 0 pradzioje
 			// parasyti kuri virtuali masina yra uzkrauta 
 			// KOMANDU VYKDYMAS
-			 
+			machine.printMemory();
 		    while(true){
 		   		machine.printRegisters();
 		   		machine.pause();
 		   		machine.commandInterpreter();
-		   		//machine.printMemory();
+		   	//	machine.printMemory();
 		   		machine.TI -= 1;
 		   		
 		   		machine.startIO();
 		   		machine.checkInterrupt();
 		   		///Reiketu patikrinima ideti ar nebuvo interupt	
 		     }  
-		 //}catch(Exception e){
-			// System.out.println(e.toString());
-		// }
+		 }catch(Exception e){
+			 System.out.println(e.toString());
+	     }
 	}
 }

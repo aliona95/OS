@@ -33,10 +33,12 @@ import javax.swing.border.BevelBorder;
 public class RM {
 
 	private JFrame frmMm;
-	private JTextField txt;
-	private JTable table_1;
-	private String filenames = "";
+	public static JTextField txt;
+	public static JTable table_1;
+	public static String[] filenames;
 	private int dataBloksNum = 0;
+	public static TextField textAX;
+	public static TextField textBX;
 	//private int pagingTablesNum = 4;
 	private final static int from = 61 * Machine.BLOCK_SIZE * Machine.WORD_SIZE;   // 61 - nuo kur prasideda psl lentele pirma
 	public int[] pagingNum = new int[3 * Machine.BLOCK_SIZE];
@@ -48,12 +50,11 @@ public class RM {
 	 * Launch the application.
 	 */
 	
-	public static void main(String[] args) {
+	public static void main(String[] args){
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
 					RM window = new RM();
-					window.setPagingTable();
 					window.frmMm.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -99,7 +100,7 @@ public class RM {
 		
 		// REALIOS MASINOS ATMINTIES ISVALYMAS
 		JButton btnIvalytiAtmint = new JButton("I\u0161valyti atmint\u012F");
-		btnIvalytiAtmint.setBounds(464, 55, 128, 23);
+		btnIvalytiAtmint.setBounds(501, 28, 128, 23);
 		btnIvalytiAtmint.setForeground(new Color(255, 255, 255));
 		btnIvalytiAtmint.setBackground(new Color(112, 128, 144));
 		btnIvalytiAtmint.addActionListener(new ActionListener() {
@@ -210,7 +211,7 @@ public class RM {
 		
 		// REGISTRU ISVALYMAS
 		JButton btnIvalytiRegistrus = new JButton("I\u0161valyti registrus");
-		btnIvalytiRegistrus.setBounds(464, 110, 128, 23);
+		btnIvalytiRegistrus.setBounds(501, 84, 128, 23);
 		btnIvalytiRegistrus.setForeground(new Color(255, 255, 255));
 		btnIvalytiRegistrus.setBackground(new Color(112, 128, 144));
 		btnIvalytiRegistrus.addActionListener(new ActionListener() {
@@ -232,7 +233,7 @@ public class RM {
 		txt = new JTextField();
 		txt.setText("");
 		txt.setToolTipText("");
-		txt.setBounds(157, 522, 102, 20);
+		txt.setBounds(157, 522, 314, 20);
 		frmMm.getContentPane().add(txt);
 		txt.setColumns(10);
 		
@@ -323,15 +324,14 @@ public class RM {
 				{new Integer(61).toHexString(61).toUpperCase(), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
 				{new Integer(62).toHexString(62).toUpperCase(), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
 				{new Integer(63).toHexString(63).toUpperCase(), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
-				{new Integer(64).toHexString(64).toUpperCase(), null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
-			},
+				},
 			new String[] {
 				"", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""
 			}
 		));
 		scrollPane.setViewportView(table_1);
 		
-		for(int row = 1; row < 66; row++){ 
+		for(int row = 1; row < 65; row++){ 
     		for(int column = 1; column < 17; column++){
     			table_1.setValueAt("0000", row, column);
     		}
@@ -350,6 +350,30 @@ public class RM {
 		panel.setBounds(684, 214, 117, 230);
 		frmMm.getContentPane().add(panel);
 		
+		textAX = new TextField();
+		textAX.setText("0000");
+		textAX.setEnabled(false);
+		textAX.setEditable(false);
+		textAX.setBackground(Color.LIGHT_GRAY);
+		textAX.setBounds(383, 84, 88, 22);
+		frmMm.getContentPane().add(textAX);
+		
+		textBX = new TextField();
+		textBX.setText("0000");
+		textBX.setEnabled(false);
+		textBX.setEditable(false);
+		textBX.setBackground(Color.LIGHT_GRAY);
+		textBX.setBounds(383, 111, 88, 22);
+		frmMm.getContentPane().add(textBX);
+		
+		Label label_11 = new Label("AX");
+		label_11.setBounds(356, 85, 22, 22);
+		frmMm.getContentPane().add(label_11);
+		
+		Label label_12 = new Label("BX");
+		label_12.setBounds(356, 110, 22, 22);
+		frmMm.getContentPane().add(label_12);
+		
 		// PATIKRINTI KOMANDAS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		btnPradti.addActionListener( new ActionListener()
 		{
@@ -360,17 +384,16 @@ public class RM {
 		    	// PAKEISTI!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		    	// PADARYTI SU DAUG FAILU
 		    	Machine.PLR[0] = 0;
-		    	Machine.PLR[1] = 'E';
-		    	Machine.PLR[2] = 3;
-		    	Machine.PLR[3] = 'D';
+		    	Machine.PLR[1] = 14;
+		    	Machine.PLR[2] = 6;
+		    	Machine.PLR[3] = 1;
 		    	textPLR.setText("0E3D");
 		    	
 		    	// nemest i cikla, kai daug failu bus !!!!!!!!!!!!!!!!!!
 		    	// mest i cikla, 1 - kelintas failas, po to is foro paimt ji
-		    	pagingTableNumbers(1, (60 + 2));  // 60 + 2 blokas, kuriame pirma psl lentele
-		        filenames = txt.getText();
-		        for (int i = 0; i < 1; i++) {
-					fontButtons[i] = new JRadioButton(txt.getText());
+		        filenames = txt.getText().split(", ");
+		        for (int i = 0; i < filenames.length; i++) {
+					fontButtons[i] = new JRadioButton(filenames[i]);
 					fontGroup.add(fontButtons[i]);
 				    panel.add(fontButtons[i]);
 				    
@@ -378,157 +401,75 @@ public class RM {
 				    // !!!!!!!!!!!!!!!!!!!!! pradedame vykdyti VM
 				    fontButtons[0].setSelected(true);
 				    
-				    // NUSKAITO NORIMA FAILA
-				    BufferedReader inputStream = null;
-					try {
-						inputStream = new BufferedReader(new FileReader(Machine.filename));
-					} catch (FileNotFoundException e4) {
-						// TODO Auto-generated catch block
-						e4.printStackTrace();
-					}
-			    	
-			    	try {
-						expect("$WOW",inputStream);
-						expect(".NAM ", inputStream);
-						expect(".DAT ", inputStream);
-					} catch (Exception e4) {
-						// TODO Auto-generated catch block
-						e4.printStackTrace();
-					}
 			    	
 			    	int dataCounter = 0;
 			    	
-			    	// visa uzpildom nuliais
-			    	for(int row = 1; row < 17; row++){ 
+			    	// visa uzpildom nuliais, kai paspaudziam isvalyti?????
+			    	/*for(int row = 1; row < 17; row++){ 
 			    		for(int column = 1; column < 17; column++){
 			    			
 			    			table_1.setValueAt("0000", row, column);
 			    		}
-			    	}
-			    	
-			    	int dataIndex = 0;
-			    	int row = row = 17 - dataBloksNum;
-			    	int column = 1;
-			    	String command = "";
-					try {
-						while(!(command  = inputStream.readLine()).startsWith("$WRT")){
-							/*for(int i = 0; i < Machine.WORD_SIZE; i++){
-								memory[(Machine.BLOCK_SIZE * Machine.BLOCK_SIZE * Machine.WORD_SIZE) - 
-								       (dataBloksNum * Machine.BLOCK_SIZE * Machine.WORD_SIZE) + dataIndex] = (byte) command.charAt(i);
-								dataIndex++;  // !!!! pachekinti  
-							}*/
-							table_1.setValueAt(command, row, column);
-							column++;
-							// PACHECKINTI KIEK YRA MAX< KAD NEUZEIT UZ RIBU
-							if(column == 17){ 
-								row++;
-								column = 1;
-							}
-						}
-					} catch (IOException e3) {
-						// TODO Auto-generated catch block
-						e3.printStackTrace();
-					}
-			    	
-			    	// WRT
-			    	int index = 0;
-			    	row = 1;
-			    	column = 1;
-			    	try {
-						while(!(command = inputStream.readLine()).startsWith("$END")){
-							//address = realAddress(row,column);
-							table_1.setValueAt(command, row, column);
-							column++;
-							if(column == 17){ 
-								row++;
-								column = 1;
-							}
-							/*System.out.println(command);
-							for(int i = 0; i < command.length(); i++){      // patikrinimas su 4
-								memory[index] = (byte) command.charAt(i);
-								if((index - 1) < BLOCKS * BLOCK_SIZE * WORD_SIZE){
-									index++;
-								}else{
-									index = 0;
-								}
-							}*/
-						}
-					} catch (IOException e2) {
-						// TODO Auto-generated catch block
-						e2.printStackTrace();
-					}
-			    		
-			    	// END
-			    	try {
-						inputStream.close();
-					} catch (IOException e1) {
+			    	}*/
+  	   	
+			    	frmMm.validate();
+				    frmMm.getContentPane().repaint();  
+		        }
+				    try {
+				    	Machine.filenames = filenames;
+				    	Thread t = new Thread(new Machine());
+				    	t.start();
+					} catch (Exception e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
-			    	   	
-			    	frmMm.validate();
-				    frmMm.getContentPane().repaint();
-				    Machine.filename = txt.getText();
-				    //Machine.main();
-				    for(int j = 0; j < 4096; j++){
-				    	System.out.println(Machine.memory[j]);
-				    }
-				} 
 		    }
 		});
-		
-		
 		System.out.println(panel.getComponentCount());
 		
 		frmMm.setBounds(100, 100, 827, 602);
 		frmMm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
-	public void setPagingTable(){
-		for(int i = 0; i < pagingNum.length; i++){
-			pagingNum[i] = i;
-		}
+	public static void printMemory(){
+		String memory = "";
 		int counter = 0;
-		Random randomGenerator = new Random(System.currentTimeMillis());
-		for(int i = 0; i < pagingNum.length; i++){
-			int random = randomGenerator.nextInt(pagingNum.length - counter++);
-			swap(i, random + i);
+		for(int row = 1; row < 65; row++){ 
+			for(int column = 1; column < 17; column++){
+				for(int i = 0; i < 4; i++){
+					if(row == 62){
+						memory = "";
+						memory += Machine.memory[(row - 1) * 16 * 4 + 0 + (column - 1) * 4];
+						System.out.println("PUSLAPIAVIMO ADRESAS " + ((row - 1) * 16 * 4 + 0 + (column - 1) * 4));
+					}else{
+						memory += (char) Machine.memory[(row - 1) * 16 * 4 + i + (column - 1) * 4];
+						System.out.println("ADRESAS " + ((row - 1) * 16 * 4 + i + (column - 1) * 4));
+					}
+				}
+				table_1.setValueAt(memory, row, column);
+				memory = "";
+			}
 		}
-	}
-	public void swap(int from, int to){
-		int temp = pagingNum[from];
-		pagingNum[from] = pagingNum[to];
-		pagingNum[to] = temp;
-	}
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	public void pagingTableNumbers(int vmCounter, int row){
-		/*for(int i = 0; i < Machine.BLOCK_SIZE; i++){
-			Machine.memory[from + i] = (byte) random;
-		}*/
-		int index = vmCounter * Machine.BLOCK_SIZE - Machine.BLOCK_SIZE;
-	 	for(int column = 1; column < 17; column++){
-	    	table_1.setValueAt(new Integer(pagingNum[index]).toHexString(pagingNum[index]).toUpperCase(), row, column);
-	   		System.out.println("RANDOM " + new Integer(pagingNum[index]).toHexString(pagingNum[index]).toUpperCase());	
-	   		Machine.memory[((61 * 16 + index))] = (byte) pagingNum[index];
-	   		index++;
-	 	}
-	}
-	public int realAddress(int x, int y){
-		int pagingTableAdr = Machine.BLOCK_SIZE * Machine.PLR[2] + Machine.PLR[3];
-		//int pagingTableNum = paging
+		/*
+		for(int column = 1; column < 17; column++){
+			for(int i = 0; i < 4; i++){
+				memory += Machine.memory[61 * 16 * 4 + i + (column-1) * 4];
+				System.out.println("ADRESAS " + (61 * 16 * 4 + i + (column-1) * 4));
+			}
+			table_1.setValueAt(memory, 63, column);
+			memory = "";
+		}
+		*/
 		
-		return 0;
-	
-		 
+		System.out.println("COUNTER " + counter);
 	}
-	
-	public void expect(String expectCommand, BufferedReader inputStream) throws Exception{
-    	String command = inputStream.readLine();
-    	if(command.startsWith((expectCommand))){
-    		if(expectCommand == ".DAT "){
-    			dataBloksNum = Character.getNumericValue(command.charAt(5));  // kas po to seka - ignoruojama
-    		}
-    	}else{
-    		throw new Exception("Invalid command " + command + " expected " + expectCommand);
-    	}
-    }
+	public static void printRegisters(){
+		textAX.setText(Integer.toHexString(Machine.unsignedToBytes(Machine.AX[0])).toUpperCase() + 
+			Integer.toHexString(Machine.unsignedToBytes(Machine.AX[1])).toUpperCase() + 
+			Integer.toHexString(Machine.unsignedToBytes(Machine.AX[2])).toUpperCase() + 
+			Integer.toHexString(Machine.unsignedToBytes(Machine.AX[3])).toUpperCase());
+		textBX.setText(Integer.toHexString(Machine.unsignedToBytes(Machine.BX[0])).toUpperCase() + 
+				Integer.toHexString(Machine.unsignedToBytes(Machine.BX[1])).toUpperCase() + 
+				Integer.toHexString(Machine.unsignedToBytes(Machine.BX[2])).toUpperCase() + 
+				Integer.toHexString(Machine.unsignedToBytes(Machine.BX[3])).toUpperCase());
+	}
 }
