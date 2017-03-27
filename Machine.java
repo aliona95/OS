@@ -43,10 +43,6 @@ public class Machine{
     public byte channelDeviceBuffer[] = new byte[64];
     public int X, Y;
     
-    
-  
-    // !!!!!!!!!! CLOSE FILE
-    // !!!!!!!!!! nuimti patikrinimus
     private void loader(String fileName) throws Exception{
     	///Irasome psl. lenteles skaicius.
     	for(int i = 0; i < BLOCK_SIZE; i++){
@@ -69,28 +65,26 @@ public class Machine{
     	
     	//System.out.println("DataBlocksNum" + dataBlocksNum);
     	dat[0] = BLOCK_SIZE - dataBlocksNum;
-    	//System.out.println("DAT[0] = " +dat[0]);
+    	//System.out.println("DAT[0] = " + dat[0]);
     	dat[1] = 0;
     	int dataSegment = dat[0];
     	while(!(command = inputStream.readLine()).startsWith("$WRT")){
     		writeToMemory(command, dat);
     		dat = nextAddr(dat);
     	}
-    	
+   
     	// WRT
-    	int index = 0;
     	while(!(command = inputStream.readLine()).startsWith("$END")){
-    	// patikrinimas su 4 !!!!!!!!!!!!!!!!!!!!!!!!!!
     		writeToMemory(command, code);
-    		System.out.println("DATA SEGMENT" + dataSegment);
-    		System.out.println("CODe" + code[0]);
+    		//System.out.println("DATA SEGMENT" + dataSegment);
+    		//System.out.println("CODe" + code[0]);
     		if(code[0] == dataSegment){
     			throw new Exception("Virtual machine has no more space");
     		}else{
     			code = nextAddr(code);	
     		}
     	}
-    		
+  
     	// END
     	inputStream.close();
     }
@@ -102,10 +96,10 @@ public class Machine{
     	}
     }
     public int realAddress(int x, int y) {
-		int pagingTableAddr = (((int)PLR[2]) * 10 + (int)PLR[3]) * BLOCK_SIZE * WORD_SIZE;
-		System.out.println("PAGING TABLE ADDRESS " + pagingTableAddr);
+		int pagingTableAddr = (((int) PLR[2]) * 10 + (int) PLR[3]) * BLOCK_SIZE * WORD_SIZE;
+		//System.out.println("PAGING TABLE ADDRESS " + pagingTableAddr);
 	    int pagingRandomNumber = memory[pagingTableAddr + x * 4]; 
-	    System.out.println("PAGING RANDOM NUMBER " + pagingRandomNumber);
+	    //System.out.println("PAGING RANDOM NUMBER " + pagingRandomNumber);
 	    return pagingRandomNumber * BLOCK_SIZE + y * WORD_SIZE;  
 	}
     public int[] nextAddr(int[] code) throws Exception{
@@ -125,14 +119,15 @@ public class Machine{
     	code[1] = y;
     	return code;
     }
-    public void commandInterpreter() throws Exception{  // !!!!!! padaryti per realu adr su IC
+    public void commandInterpreter() throws Exception{
     	String command = "";
     	int address = realAddress(IC[0], IC[1]);
+    	// Paimame komanda is atminties
     	for(int i = 0; i < WORD_SIZE; i++){
     		command += (char)memory[address + i];
     	}
     	String commandStart = command;
-    	System.out.println("KOMANDA " + command);
+    	//System.out.println("KOMANDA " + command);
     	switch(commandStart.substring(0, 2)){  // paimame pirmus 2 komandos simbolius
     		// ATMINTIES KOMANDOS
     		case "LA":
@@ -228,11 +223,15 @@ public class Machine{
 					  	  Character.getNumericValue(command.charAt(3)));
     			break;
     		// PABAIGA
-    		case "HALT":
-    			commandHALT();
+    		case "HA":
+    			if(commandStart.substring(2, 4).equals("LT")){
+    				commandHALT();
+    			}else{
+    				throw new Exception("Unknown command");
+    			}
     			break;
     		default:
-    			throw new Exception("Unknow command");
+    			throw new Exception("Unknown command");
     	}
     }
     
@@ -611,7 +610,7 @@ public class Machine{
 	public void stopProgram(){
 		System.exit(0);
 	}
-    public void expect(String expectCommand, BufferedReader inputStream) throws Exception{
+    public static void expect(String expectCommand, BufferedReader inputStream) throws Exception{
     	String command = inputStream.readLine();
     	if(command.startsWith((expectCommand))){
     		if(expectCommand == ".DAT "){
@@ -631,9 +630,19 @@ public class Machine{
 		}
     }
     public void printRegisters(){
+    	System.out.println("AX = " + (Integer.toHexString(AX[0]).toUpperCase()) + " " + 
+    		Integer.toHexString(AX[1]).toUpperCase() + " " + Integer.toHexString(AX[2]).toUpperCase()
+    		+ " " + Integer.toHexString(AX[3]).toUpperCase());
+    	/*
     	System.out.println("AX = " + AX[0] + " " + AX[1] + " " + AX[2] + " " + AX[3]);
     	System.out.println("BX = " + BX[0] + " " + BX[1] + " " + BX[2] + " " + BX[3]);
     	System.out.println("IC = " + IC[0] + " " + IC[1]);
+    	*/
+    	System.out.println("BX = " + (Integer.toHexString(BX[0]).toUpperCase()) + " " + 
+        	Integer.toHexString(BX[1]).toUpperCase() +" " + Integer.toHexString(BX[2]).toUpperCase()
+        	+ " " + Integer.toHexString(BX[3]).toUpperCase());
+    	System.out.println("IC = " + (Integer.toHexString(IC[0]).toUpperCase()) + " " + 
+        	Integer.toHexString(IC[1]).toUpperCase());
     	System.out.println("C  = " + C);
     }
     public void pause(){
@@ -645,6 +654,8 @@ public class Machine{
 			 PLR[2] = 6; 
 			 PLR[3] = 1;
 			 Machine machine = new Machine();
+			 Loader loader = new Loader();
+			 loader.checkCommands(filename);
 			 machine.setPagingTable();
 			 machine.loader(filename);
 			 //machine.printMemory();

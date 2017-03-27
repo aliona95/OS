@@ -47,7 +47,7 @@ public class RM {
 	/**
 	 * Launch the application.
 	 */
-	/*
+	
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
@@ -61,7 +61,7 @@ public class RM {
 			}
 		});
 	}
-*/
+
 	/**
 	 * Create the application.
 	 */
@@ -469,7 +469,7 @@ public class RM {
 			    	frmMm.validate();
 				    frmMm.getContentPane().repaint();
 				    Machine.filename = txt.getText();
-				    Machine.main();
+				    //Machine.main();
 				    for(int j = 0; j < 4096; j++){
 				    	System.out.println(Machine.memory[j]);
 				    }
