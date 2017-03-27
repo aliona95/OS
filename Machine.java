@@ -16,6 +16,7 @@ public class Machine{
 	public final static int BLOCK_SIZE = 16;
 	public final static int USER_BLOCKS = 48;
 	private final static int BLOCKS = 64;
+	public final static long MAX_VALUE = 0xFFFFFFFFL;
 	public int[] pagingTablesNum = new int[3 * BLOCK_SIZE];
 	
 	private static int dataBlocksNum = 0;
@@ -30,7 +31,7 @@ public class Machine{
     private final byte BX[]  = new byte[WORD_SIZE];
     private final byte IC[]  = {0, 0};  // kelinta komanda vykdoma
     private byte C;             
-    private byte SF;
+    private byte SF; // X X X X CF ZF X X  
     private byte MODE;
     private byte CH1;
     private byte CH2;
@@ -302,32 +303,155 @@ public class Machine{
     	incIC();
     	clearC();
     	int address = realAddress(x,y);
+    	String num1 = "";
+    	String num2 = "";
+    	long temp1 = 0;
+    	long temp2 = 0;
     	for(int i = 0; i < WORD_SIZE; i++){
-    		AX[i] += memory[address + i];
+    		num1 += (String) Integer.toHexString(memory[address + i]).toUpperCase();
+    		num2 += (String) Integer.toHexString(unsignedToBytes(AX[i])).toUpperCase();
     	}
+    	//System.out.println("NUM1 " + num1);
+    	//System.out.println("NUM2 " + num2);
+    	temp1 = Long.parseLong(num1, 16);
+    	temp2 = Long.parseLong(num2, 16);
+    	//System.out.println("Temp " + temp1);
+    	//System.out.println("SUMA " + (temp1 + temp2));
+    	
+    	long sum = temp1 + temp2;
+    	if(sum > MAX_VALUE){
+    		setCF();
+    		sum -= (MAX_VALUE + 1);
+    		//System.out.println("PERPILDYMAS " + sum);
+    	}
+    	String hexSum = Long.toHexString(sum).toUpperCase();
+    	
+    	
+    	///////////////////////////////////////////////////////////////////////////
+    	if(hexSum.length() == 8){
+    		for(int i = 0; i < WORD_SIZE; i++){
+    			String hex = hexSum.substring(i * 2, (i * 2) + 2);
+    			System.out.println(Integer.parseInt(hex, 16));
+    			AX[i] = (byte) Integer.parseInt(hex, 16);
+    		}
+    	}
+    	
     }
     public void commandAB(int x, int y){
     	incIC();
     	clearC();
     	int address = realAddress(x,y);
+    	String num1 = "";
+    	String num2 = "";
+    	long temp1 = 0;
+    	long temp2 = 0;
     	for(int i = 0; i < WORD_SIZE; i++){
-    		BX[i] += memory[address + i];
+    		num1 += (String) Integer.toHexString(memory[address + i]).toUpperCase();
+    		num2 += (String) Integer.toHexString(unsignedToBytes(BX[i])).toUpperCase();
+    	}
+    	//System.out.println("NUM1 " + num1);
+    	//System.out.println("NUM2 " + num2);
+    	temp1 = Long.parseLong(num1, 16);
+    	temp2 = Long.parseLong(num2, 16);
+    	//System.out.println("Temp " + temp1);
+    	//System.out.println("SUMA " + (temp1 + temp2));
+    	
+    	long sum = temp1 + temp2;
+    	if(sum > MAX_VALUE){
+    		setCF();
+    		sum -= (MAX_VALUE + 1);
+    		//System.out.println("PERPILDYMAS " + sum);
+    	}
+    	String hexSum = Long.toHexString(sum).toUpperCase();
+    	
+    	
+    	///////////////////////////////////////////////////////////////////////////
+    	if(hexSum.length() == 8){
+    		for(int i = 0; i < WORD_SIZE; i++){
+    			String hex = hexSum.substring(i * 2, (i * 2) + 2);
+    			System.out.println(Integer.parseInt(hex, 16));
+    			BX[i] = (byte) Integer.parseInt(hex, 16);
+    		}
     	}
     }
     public void commandBA(int x, int y){
     	incIC();
     	clearC();
     	int address = realAddress(x,y);
+    	String num1 = "";
+    	String num2 = "";
+    	long temp1 = 0;
+    	long temp2 = 0;
     	for(int i = 0; i < WORD_SIZE; i++){
-    		AX[i] -= memory[address + i];
+    		num1 += (String) Integer.toHexString(memory[address + i]).toUpperCase();
+    		num2 += (String) Integer.toHexString(unsignedToBytes(AX[i])).toUpperCase();
+    	}
+    	//System.out.println("NUM1 " + num1);
+    	//System.out.println("NUM2 " + num2);
+    	temp1 = Long.parseLong(num1, 16);
+    	temp2 = Long.parseLong(num2, 16);
+    	//System.out.println("Temp " + temp1);
+    	//System.out.println("Temp " + temp2);
+    	
+    	//System.out.println("SUMA " + (temp1 + temp2));
+    	
+    	long sum = temp2 - temp1;
+    	if(temp2 < temp1){
+    		setCF();
+    		sum = temp1 - temp2;
+    		sum = MAX_VALUE - sum + 1;
+    		System.out.println("Perpildymas");
+    	}
+    	String hexSum = Long.toHexString(sum).toUpperCase();
+    	
+    	
+    	///////////////////////////////////////////////////////////////////////////
+    	if(hexSum.length() == 8){
+    		for(int i = 0; i < WORD_SIZE; i++){
+    			String hex = hexSum.substring(i * 2, (i * 2) + 2);
+    			System.out.println(Integer.parseInt(hex, 16));
+    			AX[i] = (byte) Integer.parseInt(hex, 16);
+    		}
     	}
     }
     public void commandBB(int x, int y){
     	incIC();
     	clearC();
     	int address = realAddress(x,y);
+    	String num1 = "";
+    	String num2 = "";
+    	long temp1 = 0;
+    	long temp2 = 0;
     	for(int i = 0; i < WORD_SIZE; i++){
-    		BX[i] -= memory[address + i];
+    		num1 += (String) Integer.toHexString(memory[address + i]).toUpperCase();
+    		num2 += (String) Integer.toHexString(unsignedToBytes(BX[i])).toUpperCase();
+    	}
+    	//System.out.println("NUM1 " + num1);
+    	//System.out.println("NUM2 " + num2);
+    	temp1 = Long.parseLong(num1, 16);
+    	temp2 = Long.parseLong(num2, 16);
+    	//System.out.println("Temp " + temp1);
+    	//System.out.println("Temp " + temp2);
+    	
+    	//System.out.println("SUMA " + (temp1 + temp2));
+    	
+    	long sum = temp2 - temp1;
+    	if(temp2 < temp1){
+    		setCF();
+    		sum = temp1 - temp2;
+    		sum = MAX_VALUE - sum + 1;
+    		System.out.println("Perpildymas");
+    	}
+    	String hexSum = Long.toHexString(sum).toUpperCase();
+    	
+    	
+    	///////////////////////////////////////////////////////////////////////////
+    	if(hexSum.length() == 8){
+    		for(int i = 0; i < WORD_SIZE; i++){
+    			String hex = hexSum.substring(i * 2, (i * 2) + 2);
+    			System.out.println(Integer.parseInt(hex, 16));
+    			BX[i] = (byte) Integer.parseInt(hex, 16);
+    		}
     	}
     }
     // LOGINES KOMANDOS
@@ -381,7 +505,7 @@ public class Machine{
     	}
     }
     public void commandJL(int x, int y){
-    	if(getBit(3) == 0 && getBit(4) == getBit(2)){
+    	if(getBit(4) == 0){
     		IC[0] = (byte)x;
         	IC[1] = (byte)y;
     	}else{
@@ -389,7 +513,7 @@ public class Machine{
     	}
     }
     public void commandJG(int x, int y){
-    	if(getBit(3) == 0 && getBit(4) != getBit(2)){
+    	if(getBit(4) == 0 && getBit(3) == 0){
     		IC[0] = (byte)x;
         	IC[1] = (byte)y;
     	}else{
@@ -452,6 +576,9 @@ public class Machine{
 	}
 	public void setC(){
 		C = 1;
+	}
+	public void setCF(){
+		SF = (byte) (SF | (1 << 4));
 	}
 	public int getBit(int pos){
 		return(SF >> pos) & 1;
@@ -630,20 +757,24 @@ public class Machine{
 		}
     }
     public void printRegisters(){
-    	System.out.println("AX = " + (Integer.toHexString(AX[0]).toUpperCase()) + " " + 
-    		Integer.toHexString(AX[1]).toUpperCase() + " " + Integer.toHexString(AX[2]).toUpperCase()
-    		+ " " + Integer.toHexString(AX[3]).toUpperCase());
-    	/*
-    	System.out.println("AX = " + AX[0] + " " + AX[1] + " " + AX[2] + " " + AX[3]);
-    	System.out.println("BX = " + BX[0] + " " + BX[1] + " " + BX[2] + " " + BX[3]);
-    	System.out.println("IC = " + IC[0] + " " + IC[1]);
-    	*/
+    	System.out.println("AX = " + (Integer.toHexString(unsignedToBytes(AX[0])).toUpperCase()) + " " + 
+    		Integer.toHexString(unsignedToBytes(AX[1])).toUpperCase() + " " + Integer.toHexString(unsignedToBytes(AX[2])).toUpperCase()
+    		+ " " + Integer.toHexString(unsignedToBytes(AX[3])).toUpperCase());
     	System.out.println("BX = " + (Integer.toHexString(BX[0]).toUpperCase()) + " " + 
         	Integer.toHexString(BX[1]).toUpperCase() +" " + Integer.toHexString(BX[2]).toUpperCase()
         	+ " " + Integer.toHexString(BX[3]).toUpperCase());
+        
+    	/*
+    	System.out.println("AX = " + unsignedToBytes(AX[0]) + " " + unsignedToBytes(AX[1]) + " " + AX[2] + " " + AX[3]);
+    	System.out.println("BX = " + BX[0] + " " + BX[1] + " " + BX[2] + " " + BX[3]);
+    	System.out.println("IC = " + IC[0] + " " + IC[1]);
+*/
     	System.out.println("IC = " + (Integer.toHexString(IC[0]).toUpperCase()) + " " + 
         	Integer.toHexString(IC[1]).toUpperCase());
     	System.out.println("C  = " + C);
+    }
+    public static int unsignedToBytes(byte b){
+    	return b & 0XFF;
     }
     public void pause(){
     	System.out.println("Press any key to continue");
@@ -677,7 +808,7 @@ public class Machine{
 		   		machine.printRegisters();
 		   		machine.pause();
 		   		machine.commandInterpreter();
-		   		machine.printMemory();
+		   		//machine.printMemory();
 		   		machine.TI -= 1;
 		   		
 		   		machine.startIO();
