@@ -40,6 +40,7 @@ public class VM {
 	public static TextField textIC;
 	public static TextField textC;
 	public static TextField textSF;
+	public static JButton btningsninis;
 	/**
 	 * Launch the application.
 	 */
@@ -184,9 +185,10 @@ public class VM {
 		table.setBounds(30, 177, 636, 272);
 		frmVm.getContentPane().add(table);
 		
-		JButton btningsninis = new JButton("\u017Dingsninis");
+		btningsninis = new JButton("\u017Dingsninis");
 		btningsninis.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				
 			}
 		});
 		btningsninis.setBounds(30, 128, 109, 23);

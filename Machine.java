@@ -46,11 +46,12 @@ public class Machine implements Runnable{
     public int channelNumber;
     public byte channelDeviceBuffer[] = new byte[64];
     public int X, Y;
+    public static boolean click = false;
     
     private void loader(String fileName, int vmCounter) throws Exception{
     	///Irasome psl. lenteles skaicius.
     	for(int i = 0; i < BLOCK_SIZE; i++){
-    		memory[BLOCK_SIZE * WORD_SIZE * (PLR[2] * 10 + PLR[3]) + i * WORD_SIZE] = (byte) pagingTablesNum[i]; 
+    		memory[BLOCK_SIZE * WORD_SIZE * (PLR[2] * 10 + PLR[3]) + i * WORD_SIZE] = (byte) pagingTablesNum[(vmCounter * BLOCK_SIZE) + i]; 
     		System.out.println("Paging table num " + pagingTablesNum[i]);
     	}
     	//System.out.println("MEMORY SK" + BLOCK_SIZE * WORD_SIZE * (PLR[2]*10+PLR[3]));
@@ -821,6 +822,12 @@ public class Machine implements Runnable{
     	new java.util.Scanner(System.in).nextLine();
     }
     public void run(){
+    	try {
+			RM.supervisorMode();
+		} catch (InterruptedException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
 		Machine machine = new Machine();
 		Loader loader = new Loader();
 		machine.setPagingTable();
@@ -829,37 +836,40 @@ public class Machine implements Runnable{
 			 System.out.println("AS CIA---------------------------------------------------------------------------------------------------------------------------------");
 			int counter = 0;
 			boolean run = true;
+			//Vykdome programa pazingsniui
 		    while(run){
-		    	try{
-		    		if(counter == 0){
-		    			MODE = 1;  /// Klausimas???
-		    			RM.supervisorMode();
-		    			filename = filenames[i];
-		    			loader.checkCommands(filename);
-		    			machine.loader(filename, i + 1);
-		    		    machine.vm = new VM();
-		    			machine.vm.vm();
-		    			machine.printMemory();
-		    		}
-		    		machine.printRegisters();
-			   		machine.pause();
-			   		machine.commandInterpreter();
-			   		machine.TI -= 1;
-			   		machine.startIO();
-			   		machine.checkInterrupt();
-			   		counter++;
-		    	}catch(Exception e){
-		    		machine.PLR[3]++;
-		    		counter = 0;
-		    		machine.SI = 0;
-					machine.IC[0] = 0;
-					machine.IC[1] = 0;
-					machine.TI = 10;
-					vm.frmVm.dispose();
-		    		System.out.println(e.toString());
-		    		break;
-		    	}
-		     }  
+		    		try{
+			    		if(counter == 0){
+			    			MODE = 1;  /// Klausimas???
+			    			// setMode
+			    			filename = filenames[i];
+			    			loader.checkCommands(filename);
+			    			machine.loader(filename, i + 1);
+			    		    machine.vm = new VM();
+			    			machine.vm.vm();
+			    			machine.printMemory();
+			    		}
+			    		machine.printRegisters();
+				   		machine.pause();
+				   		machine.commandInterpreter();
+				   		machine.TI -= 1;
+				   		machine.startIO();
+				   		machine.checkInterrupt();
+				   		counter++;
+				   		click = false;
+			    	}catch(Exception e){
+			    		machine.PLR[3]++;
+			    		counter = 0;
+			    		machine.SI = 0;
+						machine.IC[0] = 0;
+						machine.IC[1] = 0;
+						machine.TI = 10;
+						vm.frmVm.dispose();
+						run = false;
+			    		System.out.println(e.toString());
+			    		break;
+			    	}
+			     } 		
 		}
     }
 }

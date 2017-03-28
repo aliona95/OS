@@ -1,6 +1,6 @@
 $WOW
 .NAM vhk
-.DAT 1
+.DAT 7
 abcd
 2222
 3333
