@@ -34,7 +34,12 @@ public class VM {
 	private JFrame frmVm;
 	public static JTable table;
 	private int dataBloksNum = 0;
-
+	
+	public static TextField textAX;
+	public static TextField textBX;
+	public static TextField textIC;
+	public static TextField textC;
+	public static TextField textSF;
 	/**
 	 * Launch the application.
 	 */
@@ -77,81 +82,71 @@ public class VM {
 		label_1.setBounds(20, 56, 62, 22);
 		frmVm.getContentPane().add(label_1);
 		
-		JRadioButton rdbtnNewRadioButton = new JRadioButton("Nuolatinis");
-		rdbtnNewRadioButton.setBackground(new Color(248, 248, 255));
-		rdbtnNewRadioButton.setBounds(30, 84, 109, 23);
-		frmVm.getContentPane().add(rdbtnNewRadioButton);
-		
-		JRadioButton rdbtnNewRadioButton_1 = new JRadioButton("\u017Dingsninis");
-		rdbtnNewRadioButton_1.setBackground(new Color(248, 248, 255));
-		rdbtnNewRadioButton_1.setBounds(30, 110, 109, 23);
-		frmVm.getContentPane().add(rdbtnNewRadioButton_1);
-		
 		Label label_2 = new Label("Registrai");
 		label_2.setForeground(Color.BLUE);
 		label_2.setBounds(157, 28, 62, 22);
 		frmVm.getContentPane().add(label_2);
 		
 		Label label_3 = new Label("AX");
-		label_3.setBounds(177, 56, 28, 22);
+		label_3.setBounds(157, 56, 28, 22);
 		frmVm.getContentPane().add(label_3);
 		
-		TextField textField = new TextField();
-		textField.setText("0000");
-		textField.setEditable(false);
-		textField.setEnabled(false);
-		textField.setBackground(Color.LIGHT_GRAY);
-		textField.setForeground(Color.BLACK);
-		textField.setBounds(211, 56, 47, 22);
-		frmVm.getContentPane().add(textField);
+		textAX = new TextField();
+		textAX.setText("0000");
+		textAX.setEditable(false);
+		textAX.setEnabled(false);
+		textAX.setBackground(Color.LIGHT_GRAY);
+		textAX.setForeground(Color.BLACK);
+		textAX.setBounds(186, 56, 72, 22);
+		frmVm.getContentPane().add(textAX);
 		
 		Label label_4 = new Label("BX");
-		label_4.setBounds(177, 84, 28, 22);
+		label_4.setBounds(157, 85, 28, 22);
 		frmVm.getContentPane().add(label_4);
 		
-		TextField textField_1 = new TextField();
-		textField_1.setText("0000");
-		textField_1.setEnabled(false);
-		textField_1.setEditable(false);
-		textField_1.setBackground(Color.LIGHT_GRAY);
-		textField_1.setBounds(211, 84, 47, 22);
-		frmVm.getContentPane().add(textField_1);
+		textBX = new TextField();
+		textBX.setText("0000");
+		textBX.setEnabled(false);
+		textBX.setEditable(false);
+		textBX.setBackground(Color.LIGHT_GRAY);
+		textBX.setBounds(186, 84, 72, 22);
+		frmVm.getContentPane().add(textBX);
 		
 		Label label_6 = new Label("IC");
 		label_6.setBounds(264, 56, 28, 22);
 		frmVm.getContentPane().add(label_6);
 		
-		TextField textField_3 = new TextField();
-		textField_3.setText("0000");
-		textField_3.setEnabled(false);
-		textField_3.setEditable(false);
-		textField_3.setBackground(Color.LIGHT_GRAY);
-		textField_3.setBounds(296, 56, 47, 22);
-		frmVm.getContentPane().add(textField_3);
+		textIC = new TextField();
+		textIC.setText("0000");
+		textIC.setEnabled(false);
+		textIC.setEditable(false);
+		textIC.setBackground(Color.LIGHT_GRAY);
+		textIC.setBounds(296, 56, 47, 22);
+		frmVm.getContentPane().add(textIC);
 		
 		Label label_7 = new Label("C");
 		label_7.setBounds(264, 85, 22, 22);
 		frmVm.getContentPane().add(label_7);
 		
-		TextField textField_4 = new TextField();
-		textField_4.setText("FALSE");
-		textField_4.setEnabled(false);
-		textField_4.setEditable(false);
-		textField_4.setBackground(Color.LIGHT_GRAY);
-		textField_4.setBounds(296, 84, 47, 22);
-		frmVm.getContentPane().add(textField_4);
+		textC = new TextField();
+		textC.setText("FALSE");
+		textC.setEnabled(false);
+		textC.setEditable(false);
+		textC.setBackground(Color.LIGHT_GRAY);
+		textC.setBounds(296, 84, 47, 22);
+		frmVm.getContentPane().add(textC);
 		
 		Label label_9 = new Label("SF");
 		label_9.setBounds(356, 56, 22, 22);
 		frmVm.getContentPane().add(label_9);
 		
-		TextField textField_6 = new TextField();
-		textField_6.setText("0000");
-		textField_6.setEnabled(false);
-		textField_6.setEditable(false);
-		textField_6.setBackground(Color.LIGHT_GRAY);
-		textField_6.setBounds(383, 56, 47, 22);
-		frmVm.getContentPane().add(textField_6);
+		textSF = new TextField();
+		textSF.setText("0000");
+		textSF.setEnabled(false);
+		textSF.setEditable(false);
+		textSF.setBackground(Color.LIGHT_GRAY);
+		textSF.setBounds(383, 56, 72, 22);
+		frmVm.getContentPane().add(textSF);
 		
 		table = new JTable();
 		table.setBorder(UIManager.getBorder("ComboBox.border"));
@@ -188,6 +183,22 @@ public class VM {
 		table.setBackground(new Color(255, 215, 0));
 		table.setBounds(30, 177, 636, 272);
 		frmVm.getContentPane().add(table);
+		
+		JButton btningsninis = new JButton("\u017Dingsninis");
+		btningsninis.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			}
+		});
+		btningsninis.setBounds(30, 128, 109, 23);
+		frmVm.getContentPane().add(btningsninis);
+		
+		JButton btnNuolatinis = new JButton("Nuolatinis");
+		btnNuolatinis.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+			}
+		});
+		btnNuolatinis.setBounds(30, 84, 109, 23);
+		frmVm.getContentPane().add(btnNuolatinis);
 		frmVm.setBounds(100, 100, 703, 510);
 		frmVm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
@@ -233,5 +244,23 @@ public class VM {
 			}
 			
 		}*/
+	}
+	public static void printRegisters(){
+		textAX.setText(Integer.toHexString(Machine.unsignedToBytes(Machine.AX[0])).toUpperCase() + 
+			Integer.toHexString(Machine.unsignedToBytes(Machine.AX[1])).toUpperCase() + 
+			Integer.toHexString(Machine.unsignedToBytes(Machine.AX[2])).toUpperCase() + 
+			Integer.toHexString(Machine.unsignedToBytes(Machine.AX[3])).toUpperCase());
+		textBX.setText(Integer.toHexString(Machine.unsignedToBytes(Machine.BX[0])).toUpperCase() + 
+				Integer.toHexString(Machine.unsignedToBytes(Machine.BX[1])).toUpperCase() + 
+				Integer.toHexString(Machine.unsignedToBytes(Machine.BX[2])).toUpperCase() + 
+				Integer.toHexString(Machine.unsignedToBytes(Machine.BX[3])).toUpperCase());
+		textSF.setText(Integer.toHexString(Machine.unsignedToBytes(Machine.SF)).toUpperCase());
+		textIC.setText((Integer.toHexString(Machine.IC[0]).toUpperCase()) + " " + 
+	        	Integer.toHexString(Machine.IC[1]).toUpperCase());
+		if(Machine.C == 0){
+			textC.setText("FALSE");
+		}else{
+			textC.setText("TRUE");
+		}
 	}
 }

@@ -32,16 +32,25 @@ import javax.swing.border.BevelBorder;
 
 public class RM {
 
-	private JFrame frmMm;
+	private static JFrame frmMm;
 	public static JTextField txt;
 	public static JTable table_1;
 	public static String[] filenames;
 	private int dataBloksNum = 0;
 	public static TextField textAX;
 	public static TextField textBX;
+	public static TextField textPLR;
+	public static TextField textIC;
+	public static TextField textC;
+	public static TextField textPI;
+	public static TextField textSI;
+	public static TextField textTI;
+	public static JRadioButton userButton;
+	public static JRadioButton supervisorButton;
+	
 	//private int pagingTablesNum = 4;
-	private final static int from = 61 * Machine.BLOCK_SIZE * Machine.WORD_SIZE;   // 61 - nuo kur prasideda psl lentele pirma
-	public int[] pagingNum = new int[3 * Machine.BLOCK_SIZE];
+	//private final static int from = 61 * Machine.BLOCK_SIZE * Machine.WORD_SIZE;   // 61 - nuo kur prasideda psl lentele pirma
+	//public int[] pagingNum = new int[3 * Machine.BLOCK_SIZE];
 	
 	JRadioButton[] fontButtons = new JRadioButton[3];
 	ButtonGroup    fontGroup = new ButtonGroup();
@@ -88,15 +97,15 @@ public class RM {
 		label_1.setBounds(20, 56, 62, 22);
 		frmMm.getContentPane().add(label_1);
 		
-		JRadioButton rdbtnNewRadioButton = new JRadioButton("Vartotojas");
-		rdbtnNewRadioButton.setBounds(30, 84, 109, 23);
-		rdbtnNewRadioButton.setBackground(new Color(248, 248, 255));
-		frmMm.getContentPane().add(rdbtnNewRadioButton);
+		userButton = new JRadioButton("Vartotojas");
+		userButton.setBounds(30, 84, 109, 23);
+		userButton.setBackground(new Color(248, 248, 255));
+		frmMm.getContentPane().add(userButton);
 		
-		JRadioButton rdbtnNewRadioButton_1 = new JRadioButton("Supervizorius");
-		rdbtnNewRadioButton_1.setBounds(30, 110, 109, 23);
-		rdbtnNewRadioButton_1.setBackground(new Color(248, 248, 255));
-		frmMm.getContentPane().add(rdbtnNewRadioButton_1);
+		supervisorButton = new JRadioButton("Supervizorius");
+		supervisorButton.setBounds(30, 110, 109, 23);
+		supervisorButton.setBackground(new Color(248, 248, 255));
+		frmMm.getContentPane().add(supervisorButton);
 		
 		// REALIOS MASINOS ATMINTIES ISVALYMAS
 		JButton btnIvalytiAtmint = new JButton("I\u0161valyti atmint\u012F");
@@ -128,7 +137,7 @@ public class RM {
 		label_3.setBounds(167, 56, 38, 22);
 		frmMm.getContentPane().add(label_3);
 		
-		TextField textPLR = new TextField();
+		textPLR = new TextField();
 		textPLR.setText("0000");
 		textPLR.setEditable(false);
 		textPLR.setEnabled(false);
@@ -137,23 +146,11 @@ public class RM {
 		textPLR.setForeground(Color.BLACK);
 		frmMm.getContentPane().add(textPLR);
 		
-		Label label_4 = new Label("R");
-		label_4.setBounds(177, 84, 28, 22);
-		frmMm.getContentPane().add(label_4);
-		
-		TextField textR = new TextField();
-		textR.setText("0000");
-		textR.setEnabled(false);
-		textR.setEditable(false);
-		textR.setBounds(211, 84, 47, 22);
-		textR.setBackground(Color.LIGHT_GRAY);
-		frmMm.getContentPane().add(textR);
-		
 		Label label_5 = new Label("IC");
 		label_5.setBounds(177, 111, 28, 22);
 		frmMm.getContentPane().add(label_5);
 		
-		TextField textIC = new TextField();
+		textIC = new TextField();
 		textIC.setText("0000");
 		textIC.setEditable(false);
 		textIC.setBounds(211, 111, 47, 22);
@@ -165,7 +162,7 @@ public class RM {
 		label_6.setBounds(264, 56, 28, 22);
 		frmMm.getContentPane().add(label_6);
 		
-		TextField textPI = new TextField();
+		textPI = new TextField();
 		textPI.setText("0000");
 		textPI.setBounds(296, 56, 47, 22);
 		textPI.setEnabled(false);
@@ -177,7 +174,7 @@ public class RM {
 		label_7.setBounds(264, 85, 22, 22);
 		frmMm.getContentPane().add(label_7);
 		
-		TextField textSI = new TextField();
+		textSI = new TextField();
 		textSI.setText("0000");
 		textSI.setBounds(296, 84, 47, 22);
 		textSI.setEnabled(false);
@@ -189,7 +186,7 @@ public class RM {
 		label_8.setBounds(264, 110, 22, 22);
 		frmMm.getContentPane().add(label_8);
 		
-		TextField textTI = new TextField();
+		textTI = new TextField();
 		textTI.setText("0000");
 		textTI.setBounds(296, 110, 47, 22);
 		textTI.setEnabled(false);
@@ -198,12 +195,12 @@ public class RM {
 		frmMm.getContentPane().add(textTI);
 		
 		Label label_9 = new Label("C");
-		label_9.setBounds(356, 56, 22, 22);
+		label_9.setBounds(177, 85, 22, 22);
 		frmMm.getContentPane().add(label_9);
 		
-		TextField textC = new TextField();
+		textC = new TextField();
 		textC.setText("FALSE");
-		textC.setBounds(383, 56, 47, 22);
+		textC.setBounds(211, 84, 47, 22);
 		textC.setEnabled(false);
 		textC.setEditable(false);
 		textC.setBackground(Color.LIGHT_GRAY);
@@ -218,7 +215,6 @@ public class RM {
 			public void actionPerformed(ActionEvent arg0) {
 				
 				textPLR.setText("0000");
-				textR.setText("0000");
 				textIC.setText("0000");
 				textPI.setText("0000");
 				textSI.setText("0000");
@@ -355,7 +351,7 @@ public class RM {
 		textAX.setEnabled(false);
 		textAX.setEditable(false);
 		textAX.setBackground(Color.LIGHT_GRAY);
-		textAX.setBounds(383, 84, 88, 22);
+		textAX.setBounds(383, 56, 88, 22);
 		frmMm.getContentPane().add(textAX);
 		
 		textBX = new TextField();
@@ -363,15 +359,15 @@ public class RM {
 		textBX.setEnabled(false);
 		textBX.setEditable(false);
 		textBX.setBackground(Color.LIGHT_GRAY);
-		textBX.setBounds(383, 111, 88, 22);
+		textBX.setBounds(383, 84, 88, 22);
 		frmMm.getContentPane().add(textBX);
 		
 		Label label_11 = new Label("AX");
-		label_11.setBounds(356, 85, 22, 22);
+		label_11.setBounds(356, 56, 22, 22);
 		frmMm.getContentPane().add(label_11);
 		
 		Label label_12 = new Label("BX");
-		label_12.setBounds(356, 110, 22, 22);
+		label_12.setBounds(355, 85, 22, 22);
 		frmMm.getContentPane().add(label_12);
 		
 		// PATIKRINTI KOMANDAS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -471,5 +467,43 @@ public class RM {
 				Integer.toHexString(Machine.unsignedToBytes(Machine.BX[1])).toUpperCase() + 
 				Integer.toHexString(Machine.unsignedToBytes(Machine.BX[2])).toUpperCase() + 
 				Integer.toHexString(Machine.unsignedToBytes(Machine.BX[3])).toUpperCase());
+		textPLR.setText(Integer.toHexString(Machine.unsignedToBytes(Machine.PLR[0])).toUpperCase() + 
+				Integer.toHexString(Machine.unsignedToBytes(Machine.PLR[1])).toUpperCase() + 
+				Integer.toHexString(Machine.unsignedToBytes(Machine.PLR[2])).toUpperCase() + 
+				Integer.toHexString(Machine.unsignedToBytes(Machine.PLR[3])).toUpperCase());
+		textIC.setText((Integer.toHexString(Machine.IC[0]).toUpperCase()) + " " + 
+	        	Integer.toHexString(Machine.IC[1]).toUpperCase());
+		if(Machine.C == 0){
+			textC.setText("FALSE");
+		}else{
+			textC.setText("TRUE");
+		}
+		textPI.setText(Integer.toString(Machine.PI));
+		textSI.setText(Integer.toString(Machine.SI));
+		textTI.setText(Integer.toString(Machine.TI));
+		
+	}
+	public static void userMode() throws InterruptedException{
+		userButton.setSelected(true);
+		frmMm.validate();
+	    frmMm.getContentPane().repaint();
+		Thread thread = new Thread();
+		thread.start();
+		thread.sleep(2000);
+		RM.supervisorButton.setSelected(false);
+		frmMm.validate();
+	    frmMm.getContentPane().repaint();  
+	}
+	public static void supervisorMode() throws InterruptedException{
+		userButton.setSelected(false);
+		frmMm.validate();
+	    frmMm.getContentPane().repaint();
+		Thread thread = new Thread();
+		thread.start();
+		thread.sleep(2000);
+		RM.supervisorButton.setSelected(true);
+		RM.userButton.setSelected(false);
+		frmMm.validate();
+	    frmMm.getContentPane().repaint();  
 	}
 }

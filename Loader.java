@@ -2,6 +2,8 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 
+import javax.swing.JOptionPane;
+
 public class Loader {
 	public void checkCommands(String filename) throws Exception{
 		BufferedReader inputStream = new BufferedReader(new FileReader(filename));
@@ -74,10 +76,12 @@ public class Loader {
 		// PABAIGA
 		case "HA":
 			if(!commandStart.substring(2, 4).equals("LT")){
+				JOptionPane.showMessageDialog(null, "Unknown command " + command + "at line " + line, "Error", JOptionPane.ERROR_MESSAGE);
 				throw new Exception("Unknown command " + command + "at line " + line);
 			}
 			break;
 		default:
+			JOptionPane.showMessageDialog(null, "Unknown command " + command + "at line " + line, "Error", JOptionPane.ERROR_MESSAGE);
 			throw new Exception("Unknown command " + command + "at line " + line);
 	   }
 	}

@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Random;
 
+import javax.swing.JOptionPane;
+
 /**
  * 
  * @author Aliona ir Eimantas
@@ -23,7 +25,7 @@ public class Machine implements Runnable{
 	
 	public final static byte memory[] = new byte[BLOCKS * BLOCK_SIZE * WORD_SIZE];
 	private VM vm[];
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	
 	public static String[] filenames;
 	public static String filename = "failas.txt";
 	
@@ -32,15 +34,15 @@ public class Machine implements Runnable{
 	public static final byte BX[]  = new byte[WORD_SIZE];
 	public static final byte IC[]  = {0, 0};  // kelinta komanda vykdoma
 	public static byte C;             
-    private byte SF; // X X X X CF ZF X X  
-    private byte MODE;
+    public static byte SF; // X X X X CF ZF X X  
+    private byte MODE;   // 1 - supervizorius, 0 - vartotojas
     private byte CH1;
     private byte CH2;
     private byte CH3;
     private byte IOI;
-    private byte PI;
-    private byte SI;
-    private byte TI = 10;
+    public static byte PI;
+    public static byte SI;
+    public static byte TI = 10;
     public int channelNumber;
     public byte channelDeviceBuffer[] = new byte[64];
     public int X, Y;
@@ -108,8 +110,6 @@ public class Machine implements Runnable{
     	int x = code[0];
     	int y = code[1];
     	y++;
-    	//System.out.println(code[0]);
-    	//System.out.println(code[1]);
     	if(y > 15){
     		x++;
     		y = 0;
@@ -229,10 +229,12 @@ public class Machine implements Runnable{
     			if(commandStart.substring(2, 4).equals("LT")){
     				commandHALT();
     			}else{
+    				JOptionPane.showMessageDialog(null, "Unknown command", "Error", JOptionPane.ERROR_MESSAGE);
     				throw new Exception("Unknown command");
     			}
     			break;
     		default:
+    			JOptionPane.showMessageDialog(null, "Unknown command", "Error", JOptionPane.ERROR_MESSAGE);
     			throw new Exception("Unknown command");
     	}
     }
@@ -585,33 +587,44 @@ public class Machine implements Runnable{
 		return(SF >> pos) & 1;
 	}
 	// INTERRUPTS
-	public void checkInterrupt(){
+	public void checkInterrupt() throws InterruptedException{
 		if((byte) TI == 0){
 			System.out.println("Program has exceeded its time limit");
+			JOptionPane.showMessageDialog(null, "Program has exceeded its time limit", "Information", JOptionPane.INFORMATION_MESSAGE);
 			MODE = 1;
+			RM.supervisorMode();
 			restartTimer();
 			MODE = 0;
+			RM.userMode();
 		}
 		if((byte) PI != 0){
 			switch((byte) PI){
 			case 1:
 				System.out.println("Program interrupt. Incorrect command");
+				JOptionPane.showMessageDialog(null, "Incorrect command", "Program interrupt", JOptionPane.ERROR_MESSAGE);
 				MODE = 1;
+				RM.supervisorMode();
 				stopProgram();
 				break;
 			case 2:
 				System.out.println("Program interrupt. Negative result");
+				JOptionPane.showMessageDialog(null, "Negative result", "Program interrupt", JOptionPane.ERROR_MESSAGE);
 				MODE = 1;
+				RM.supervisorMode();
 				stopProgram();
 				break;
 			case 3:
 				System.out.println("Program interrupt. Division by zero");
+				JOptionPane.showMessageDialog(null, "Division by zero", "Program interrupt", JOptionPane.ERROR_MESSAGE);
 				MODE = 1;
+				RM.supervisorMode();
 				stopProgram();
 				break;
 			case 4:
 				System.out.println("Program interrupt. Program overflow");
+				JOptionPane.showMessageDialog(null, "Program overflow", "Program interrupt", JOptionPane.ERROR_MESSAGE);
 				MODE = 1;
+				RM.supervisorMode();
 				stopProgram();
 				break;
 			}
@@ -620,21 +633,29 @@ public class Machine implements Runnable{
 			switch((byte) SI){
 			case 1:
 				System.out.println("Program interrupt. Data input");
+				JOptionPane.showMessageDialog(null, "Data input", "Program interrupt", JOptionPane.INFORMATION_MESSAGE);
 				MODE = 1;
+				RM.supervisorMode();
 				channelNumber = 1;
 				MODE = 0;
+				RM.userMode();
 				SI = 0;
 				break;
 			case 2:
 				System.out.println("Program interrupt. Data output");
+				JOptionPane.showMessageDialog(null, "Data output", "Program interrupt", JOptionPane.INFORMATION_MESSAGE);
 				MODE = 1;
+				RM.supervisorMode();
 				channelNumber = 2;
 				MODE = 0;
+				RM.userMode();
 				SI = 0;
 				break;
 			case 3:
 				System.out.println("Program interrupt. Command halt");
+				JOptionPane.showMessageDialog(null, "Command halt", "Program interrupt", JOptionPane.INFORMATION_MESSAGE);
 				MODE = 1;
+				RM.supervisorMode();
 				stopProgram();
 				break;
 			}
@@ -643,21 +664,30 @@ public class Machine implements Runnable{
 			switch((byte) IOI){
 			case 1:
 				System.out.println("Channel 1 done");
+				JOptionPane.showMessageDialog(null, "Channel 1 done", "Information", JOptionPane.INFORMATION_MESSAGE);
 				MODE = 1;
+				RM.supervisorMode();
 				IOI = 0;
 				MODE = 0;
+				RM.userMode();
 				break;
 			case 2:
 				System.out.println("Channel 2 done");
+				JOptionPane.showMessageDialog(null, "Channel 2 done", "Information", JOptionPane.INFORMATION_MESSAGE);
 				MODE = 1;
+				RM.supervisorMode();
 				IOI = 0;
 				MODE = 0;
+				RM.userMode();
 				break;
 			case 3:
 				System.out.println("Channel 3 done");
+				JOptionPane.showMessageDialog(null, "Channel 3 done", "Information", JOptionPane.INFORMATION_MESSAGE);
 				MODE = 1;
+				RM.supervisorMode();
 				IOI = 0;
 				MODE = 0;
+				RM.userMode();
 				break;
 			}
 		}
@@ -673,8 +703,10 @@ public class Machine implements Runnable{
 			channelNumber = 0;
 			CH1 = 1;
 			System.out.println("INPUT DATA ");
-			BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-			String input = br.readLine();
+			//BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+			//String input = br.readLine();
+			String input = JOptionPane.showInputDialog("Input");
+			System.out.println("DATA " + input);
 			int length = input.length();
 			if(length > 64){
 				length = 64;
@@ -778,6 +810,7 @@ public class Machine implements Runnable{
         	Integer.toHexString(IC[1]).toUpperCase());
     	System.out.println("C  = " + C);
     	RM.printRegisters();
+    	VM.printRegisters();
     }
     public static int unsignedToBytes(byte b){
     	return b & 0XFF;
@@ -793,6 +826,7 @@ public class Machine implements Runnable{
 			
 		//	PLR[2] = 6; 
 		//	PLR[3] = 1;
+			RM.userMode();
 			Machine machine = new Machine();
 			Loader loader = new Loader();
 			loader.checkCommands(filename);
