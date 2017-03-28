@@ -8,27 +8,28 @@ public class Loader {
 	public void checkCommands(String filename) throws Exception{
 		BufferedReader inputStream = new BufferedReader(new FileReader(filename));
 		String command;
-		
-		Machine.expect("$WOW",inputStream);
-    	Machine.expect(".NAM ", inputStream);
-    	Machine.expect(".DAT ", inputStream);	
-    	int line = 4;
-    	while(!(command = inputStream.readLine()).startsWith("$WRT")){
-    		if(command.length() > Machine.WORD_SIZE){
-    			throw new Exception("Zodzio dydis turi buti ne ilgesnis nei " + Machine.WORD_SIZE);
-    		}
-    		line++;
-    	}
-    	while(!(command = inputStream.readLine()).startsWith("$END")){
-    		if(command.length() > Machine.WORD_SIZE){
-    			throw new Exception("Komandos dydis turi buti ne ilgesnis nei " + Machine.WORD_SIZE);
-    		}
-    		line++;
-    		checkCommand(command, line);
-        }
-    	if(inputStream.readLine() != null){
-    		throw new Exception("Pabaigos klaida");
-    	}
+	    while(inputStream.readLine().startsWith("#")){
+	    	Machine.expect("$WOW",inputStream);
+	    	Machine.expect(".NAM ", inputStream);
+	    	Machine.expect(".DAT ", inputStream);	
+	    	int line = 4;
+	    	while(!(command = inputStream.readLine()).startsWith("$WRT")){
+	    		if(command.length() > Machine.WORD_SIZE){
+	    			throw new Exception("Zodzio dydis turi buti ne ilgesnis nei " + Machine.WORD_SIZE);
+	    		}
+	    		line++;
+	    	}
+	    	while(!(command = inputStream.readLine()).startsWith("$END")){
+	    		if(command.length() > Machine.WORD_SIZE){
+	    			throw new Exception("Komandos dydis turi buti ne ilgesnis nei " + Machine.WORD_SIZE);
+	    		}
+	    		line++;
+	    		checkCommand(command, line);
+	        }
+	    	if(inputStream.readLine() != null){
+	    		throw new Exception("Pabaigos klaida");
+	    	}
+	    }
     	inputStream.close();
 	}	
 	public void checkCommand(String command, int line) throws Exception{

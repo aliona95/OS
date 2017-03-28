@@ -40,7 +40,6 @@ public class VM {
 	public static TextField textIC;
 	public static TextField textC;
 	public static TextField textSF;
-	public static JButton btningsninis;
 	/**
 	 * Launch the application.
 	 */
@@ -73,15 +72,6 @@ public class VM {
 		frmVm.setTitle("VM");
 		frmVm.getContentPane().setBackground(new Color(248, 248, 255));
 		frmVm.getContentPane().setLayout(null);
-		
-		Label label = new Label("Nustatymai ");
-		label.setForeground(Color.BLUE);
-		label.setBounds(10, 28, 72, 22);
-		frmVm.getContentPane().add(label);
-		
-		Label label_1 = new Label("Re\u017Eimas");
-		label_1.setBounds(20, 56, 62, 22);
-		frmVm.getContentPane().add(label_1);
 		
 		Label label_2 = new Label("Registrai");
 		label_2.setForeground(Color.BLUE);
@@ -184,23 +174,6 @@ public class VM {
 		table.setBackground(new Color(255, 215, 0));
 		table.setBounds(30, 177, 636, 272);
 		frmVm.getContentPane().add(table);
-		
-		btningsninis = new JButton("\u017Dingsninis");
-		btningsninis.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				
-			}
-		});
-		btningsninis.setBounds(30, 128, 109, 23);
-		frmVm.getContentPane().add(btningsninis);
-		
-		JButton btnNuolatinis = new JButton("Nuolatinis");
-		btnNuolatinis.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-			}
-		});
-		btnNuolatinis.setBounds(30, 84, 109, 23);
-		frmVm.getContentPane().add(btnNuolatinis);
 		frmVm.setBounds(100, 100, 703, 510);
 		frmVm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}

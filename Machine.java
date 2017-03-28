@@ -20,6 +20,9 @@ public class Machine implements Runnable{
 	private final static int BLOCKS = 64;
 	public final static long MAX_VALUE = 0xFFFFFFFFL;
 	public int[] pagingTablesNum = new int[3 * BLOCK_SIZE];
+	public static String step = "0";
+	public static byte plr3 = 13;
+	public static byte plr2 = 3;
 	
 	private static int dataBlocksNum = 0;
 	
@@ -105,7 +108,7 @@ public class Machine implements Runnable{
 		//System.out.println("PAGING TABLE ADDRESS " + pagingTableAddr);
 	    int pagingRandomNumber = memory[pagingTableAddr + x * 4]; 
 	    //System.out.println("PAGING RANDOM NUMBER " + pagingRandomNumber);
-	    return pagingRandomNumber * BLOCK_SIZE + y * WORD_SIZE;  
+	    return pagingRandomNumber * BLOCK_SIZE * WORD_SIZE + y * WORD_SIZE;  
 	}
     public int[] nextAddr(int[] code) throws Exception{
     	int x = code[0];
@@ -531,7 +534,6 @@ public class Machine implements Runnable{
     	int address = realAddress(x,y);
     	X = x;
     	Y = y;
-    	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!PATIKRINTI X IR Y ir NUSTATYTI PI = 1
     }
     public void commandIP(int x, int y){
     	incIC();
@@ -539,7 +541,6 @@ public class Machine implements Runnable{
     	int address = realAddress(x,y);
     	X = x;
     	Y = y;
-    	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!PATIKRINTI X IR Y ir NUSTATYTI PI = 1
     }
     // PABAIGA
     public void commandHALT(){
@@ -645,6 +646,11 @@ public class Machine implements Runnable{
 			case 2:
 				System.out.println("Program interrupt. Data output");
 				JOptionPane.showMessageDialog(null, "Data output", "Program interrupt", JOptionPane.INFORMATION_MESSAGE);
+				String output = "";
+				for(int i = 0; i < channelDeviceBuffer.length; i++){
+					output += channelDeviceBuffer[i];
+				}
+				System.out.println(output);
 				MODE = 1;
 				RM.supervisorMode();
 				channelNumber = 2;
@@ -818,8 +824,10 @@ public class Machine implements Runnable{
     	return b & 0XFF;
     }
     public void pause(){
-    	System.out.println("Press any key to continue");
-    	new java.util.Scanner(System.in).nextLine();
+    	//System.out.println("Press any key to continue");
+    	//new java.util.Scanner(System.in).nextLine();
+    	this.step = JOptionPane.showInputDialog("Þingsninis reþimas - 0 \nNuolatinis reþimas - 1");
+    	System.out.println("STEP " + step);
     }
     public void run(){
     	try {
@@ -832,15 +840,20 @@ public class Machine implements Runnable{
 		Loader loader = new Loader();
 		machine.setPagingTable();
 		for(int i = 0; i < filenames.length; i++){
+			this.step = "0";
 			// KOMANDU VYKDYMAS
-			 System.out.println("AS CIA---------------------------------------------------------------------------------------------------------------------------------");
+			//System.out.println("AS CIA---------------------------------------------------------------------------------------------------------------------------------");
 			int counter = 0;
 			boolean run = true;
+			RM.fontButtons[i].setSelected(true);
+			if(i > 0){
+				RM.fontButtons[0].setSelected(false);
+			}
 			//Vykdome programa pazingsniui
 		    while(run){
 		    		try{
 			    		if(counter == 0){
-			    			MODE = 1;  /// Klausimas???
+			    			MODE = 1;  
 			    			// setMode
 			    			filename = filenames[i];
 			    			loader.checkCommands(filename);
@@ -850,7 +863,10 @@ public class Machine implements Runnable{
 			    			machine.printMemory();
 			    		}
 			    		machine.printRegisters();
-				   		machine.pause();
+			    		if(this.step.equals("0")){
+			    			machine.pause();
+			    		}
+			    		machine.printMemory();
 				   		machine.commandInterpreter();
 				   		machine.TI -= 1;
 				   		machine.startIO();
@@ -859,12 +875,15 @@ public class Machine implements Runnable{
 				   		click = false;
 			    	}catch(Exception e){
 			    		machine.PLR[3]++;
+			    		machine.plr3++;
 			    		counter = 0;
 			    		machine.SI = 0;
 						machine.IC[0] = 0;
 						machine.IC[1] = 0;
 						machine.TI = 10;
-						vm.frmVm.dispose();
+						if(vm.frmVm != null){
+							vm.frmVm.dispose();
+						}
 						run = false;
 			    		System.out.println(e.toString());
 			    		break;

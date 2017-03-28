@@ -23,6 +23,7 @@ import java.awt.Scrollbar;
 import javax.swing.JScrollPane;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.AbstractListModel;
 import javax.swing.ButtonGroup;
 import javax.swing.SwingConstants;
@@ -52,7 +53,7 @@ public class RM {
 	//private final static int from = 61 * Machine.BLOCK_SIZE * Machine.WORD_SIZE;   // 61 - nuo kur prasideda psl lentele pirma
 	//public int[] pagingNum = new int[3 * Machine.BLOCK_SIZE];
 	
-	JRadioButton[] fontButtons = new JRadioButton[3];
+	static JRadioButton[] fontButtons = new JRadioButton[3];
 	ButtonGroup    fontGroup = new ButtonGroup();
 	
 	/**
@@ -134,26 +135,26 @@ public class RM {
 		frmMm.getContentPane().add(label_2);
 		
 		Label label_3 = new Label("PLR");
-		label_3.setBounds(167, 56, 38, 22);
+		label_3.setBounds(157, 56, 22, 22);
 		frmMm.getContentPane().add(label_3);
 		
 		textPLR = new TextField();
 		textPLR.setText("0000");
 		textPLR.setEditable(false);
 		textPLR.setEnabled(false);
-		textPLR.setBounds(211, 56, 47, 22);
+		textPLR.setBounds(185, 56, 73, 22);
 		textPLR.setBackground(Color.LIGHT_GRAY);
 		textPLR.setForeground(Color.BLACK);
 		frmMm.getContentPane().add(textPLR);
 		
 		Label label_5 = new Label("IC");
-		label_5.setBounds(177, 111, 28, 22);
+		label_5.setBounds(157, 111, 28, 22);
 		frmMm.getContentPane().add(label_5);
 		
 		textIC = new TextField();
 		textIC.setText("0000");
 		textIC.setEditable(false);
-		textIC.setBounds(211, 111, 47, 22);
+		textIC.setBounds(185, 110, 47, 22);
 		textIC.setEnabled(false);
 		textIC.setBackground(Color.LIGHT_GRAY);
 		frmMm.getContentPane().add(textIC);
@@ -195,12 +196,12 @@ public class RM {
 		frmMm.getContentPane().add(textTI);
 		
 		Label label_9 = new Label("C");
-		label_9.setBounds(177, 85, 22, 22);
+		label_9.setBounds(157, 84, 22, 22);
 		frmMm.getContentPane().add(label_9);
 		
 		textC = new TextField();
 		textC.setText("FALSE");
-		textC.setBounds(211, 84, 47, 22);
+		textC.setBounds(185, 85, 47, 22);
 		textC.setEnabled(false);
 		textC.setEditable(false);
 		textC.setBackground(Color.LIGHT_GRAY);
@@ -392,9 +393,7 @@ public class RM {
 					fontButtons[i] = new JRadioButton(filenames[i]);
 					fontGroup.add(fontButtons[i]);
 				    panel.add(fontButtons[i]);
-				    
-				    // nurodome, kad vykdome pirma faila
-				    // !!!!!!!!!!!!!!!!!!!!! pradedame vykdyti VM
+				
 				    fontButtons[0].setSelected(true);
 				    
 			    	
@@ -469,8 +468,8 @@ public class RM {
 				Integer.toHexString(Machine.unsignedToBytes(Machine.BX[3])).toUpperCase());
 		textPLR.setText(Integer.toHexString(Machine.unsignedToBytes(Machine.PLR[0])).toUpperCase() + 
 				Integer.toHexString(Machine.unsignedToBytes(Machine.PLR[1])).toUpperCase() + 
-				Integer.toHexString(Machine.unsignedToBytes(Machine.PLR[2])).toUpperCase() + 
-				Integer.toHexString(Machine.unsignedToBytes(Machine.PLR[3])).toUpperCase());
+				Integer.toHexString(Machine.unsignedToBytes(Machine.plr2)).toUpperCase() + 
+				Integer.toHexString(Machine.unsignedToBytes(Machine.plr3)).toUpperCase());
 		textIC.setText((Integer.toHexString(Machine.IC[0]).toUpperCase()) + " " + 
 	        	Integer.toHexString(Machine.IC[1]).toUpperCase());
 		if(Machine.C == 0){
@@ -485,6 +484,7 @@ public class RM {
 	}
 	public static void userMode() throws InterruptedException{
 		userButton.setSelected(true);
+		JOptionPane.showMessageDialog(null, "Vartotojo reþimas", "Information", JOptionPane.INFORMATION_MESSAGE);
 		frmMm.validate();
 	    frmMm.getContentPane().repaint();
 		Thread thread = new Thread();
@@ -502,6 +502,7 @@ public class RM {
 		thread.start();
 		thread.sleep(2000);
 		RM.supervisorButton.setSelected(true);
+		JOptionPane.showMessageDialog(null, "Supervizoriaus reþimas", "Information", JOptionPane.INFORMATION_MESSAGE);
 		RM.userButton.setSelected(false);
 		frmMm.validate();
 	    frmMm.getContentPane().repaint();  
