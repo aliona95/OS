@@ -1,0 +1,12 @@
+$WOW
+.NAM vhk
+.DAT 1
+abcd
+2222
+3333
+4444
+$WRT
+LA95
+LA88
+HALT
+$END

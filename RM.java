@@ -383,7 +383,7 @@ public class RM {
 		    	Machine.PLR[1] = 14;
 		    	Machine.PLR[2] = 6;
 		    	Machine.PLR[3] = 1;
-		    	textPLR.setText("0E3D");
+		    	//textPLR.setText("0E3D");
 		    	
 		    	// nemest i cikla, kai daug failu bus !!!!!!!!!!!!!!!!!!
 		    	// mest i cikla, 1 - kelintas failas, po to is foro paimt ji
@@ -432,7 +432,7 @@ public class RM {
 		for(int row = 1; row < 65; row++){ 
 			for(int column = 1; column < 17; column++){
 				for(int i = 0; i < 4; i++){
-					if(row == 62){
+					if(row >= 62){
 						memory = "";
 						memory += Machine.memory[(row - 1) * 16 * 4 + 0 + (column - 1) * 4];
 						System.out.println("PUSLAPIAVIMO ADRESAS " + ((row - 1) * 16 * 4 + 0 + (column - 1) * 4));

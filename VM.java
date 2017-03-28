@@ -31,7 +31,7 @@ import javax.swing.UIManager;
 
 public class VM {
 
-	private JFrame frmVm;
+	public static JFrame frmVm;
 	public static JTable table;
 	private int dataBloksNum = 0;
 	
@@ -43,13 +43,13 @@ public class VM {
 	/**
 	 * Launch the application.
 	 */
-	public void vm(String filename) {
+	public void vm() {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
 					VM window = new VM();
 					window.frmVm.setVisible(true);
-					window.checkCommands(filename);
+					window.checkCommands();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -208,7 +208,7 @@ public class VM {
 	}
 	*/
 	// IS TIKRUJU PACHECKINTI
-	public void checkCommands(String filename) throws Exception{	
+	public void checkCommands() throws Exception{	
     	// visa uzpildom nuliais
     	for(int row = 1; row < 17; row++){ 
     		for(int column = 1; column < 17; column++){

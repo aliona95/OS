@@ -24,7 +24,7 @@ public class Machine implements Runnable{
 	private static int dataBlocksNum = 0;
 	
 	public final static byte memory[] = new byte[BLOCKS * BLOCK_SIZE * WORD_SIZE];
-	private VM vm[];
+	private VM vm;
 	
 	public static String[] filenames;
 	public static String filename = "failas.txt";
@@ -47,7 +47,7 @@ public class Machine implements Runnable{
     public byte channelDeviceBuffer[] = new byte[64];
     public int X, Y;
     
-    private void loader(String fileName) throws Exception{
+    private void loader(String fileName, int vmCounter) throws Exception{
     	///Irasome psl. lenteles skaicius.
     	for(int i = 0; i < BLOCK_SIZE; i++){
     		memory[BLOCK_SIZE * WORD_SIZE * (PLR[2] * 10 + PLR[3]) + i * WORD_SIZE] = (byte) pagingTablesNum[i]; 
@@ -587,7 +587,7 @@ public class Machine implements Runnable{
 		return(SF >> pos) & 1;
 	}
 	// INTERRUPTS
-	public void checkInterrupt() throws InterruptedException{
+	public void checkInterrupt() throws Exception{
 		if((byte) TI == 0){
 			System.out.println("Program has exceeded its time limit");
 			JOptionPane.showMessageDialog(null, "Program has exceeded its time limit", "Information", JOptionPane.INFORMATION_MESSAGE);
@@ -767,8 +767,9 @@ public class Machine implements Runnable{
 			IOI += 4;
 		}
 	}
-	public void stopProgram(){
-		System.exit(0);
+	public void stopProgram() throws Exception{
+		throw new Exception("Stop program");
+		//System.exit(0);
 	}
     public static void expect(String expectCommand, BufferedReader inputStream) throws Exception{
     	String command = inputStream.readLine();
@@ -819,47 +820,46 @@ public class Machine implements Runnable{
     	System.out.println("Press any key to continue");
     	new java.util.Scanner(System.in).nextLine();
     }
-	public void run(){
-		try{
-			filename = filenames[0];
-			System.out.println("AS CIA");
-			
-		//	PLR[2] = 6; 
-		//	PLR[3] = 1;
-			RM.userMode();
-			Machine machine = new Machine();
-			Loader loader = new Loader();
-			loader.checkCommands(filename);
-			machine.setPagingTable();
-			machine.loader(filename);
-			 //machine.printMemory();
-			 
-			 //machine.vm[0] = new VM();
-			 
-			 VM vm = new VM();
-			 vm.vm(filename);   //????????
-			 //vm.checkCommands(/*filename*/);
-			 //vm.getTable().setValueAt(1417, 1, 1);
-			 
-			 
-			// PATIKRINTI AR KOMANDOS VALIDZIOS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-			// reikia inicializuoti viska 0 pradzioje
-			// parasyti kuri virtuali masina yra uzkrauta 
+    public void run(){
+		Machine machine = new Machine();
+		Loader loader = new Loader();
+		machine.setPagingTable();
+		for(int i = 0; i < filenames.length; i++){
 			// KOMANDU VYKDYMAS
-			machine.printMemory();
-		    while(true){
-		   		machine.printRegisters();
-		   		machine.pause();
-		   		machine.commandInterpreter();
-		   	//	machine.printMemory();
-		   		machine.TI -= 1;
-		   		
-		   		machine.startIO();
-		   		machine.checkInterrupt();
-		   		///Reiketu patikrinima ideti ar nebuvo interupt	
+			 System.out.println("AS CIA---------------------------------------------------------------------------------------------------------------------------------");
+			int counter = 0;
+			boolean run = true;
+		    while(run){
+		    	try{
+		    		if(counter == 0){
+		    			MODE = 1;  /// Klausimas???
+		    			RM.supervisorMode();
+		    			filename = filenames[i];
+		    			loader.checkCommands(filename);
+		    			machine.loader(filename, i + 1);
+		    		    machine.vm = new VM();
+		    			machine.vm.vm();
+		    			machine.printMemory();
+		    		}
+		    		machine.printRegisters();
+			   		machine.pause();
+			   		machine.commandInterpreter();
+			   		machine.TI -= 1;
+			   		machine.startIO();
+			   		machine.checkInterrupt();
+			   		counter++;
+		    	}catch(Exception e){
+		    		machine.PLR[3]++;
+		    		counter = 0;
+		    		machine.SI = 0;
+					machine.IC[0] = 0;
+					machine.IC[1] = 0;
+					machine.TI = 10;
+					vm.frmVm.dispose();
+		    		System.out.println(e.toString());
+		    		break;
+		    	}
 		     }  
-		 }catch(Exception e){
-			 System.out.println(e.toString());
-	     }
-	}
+		}
+    }
 }
