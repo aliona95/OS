@@ -210,18 +210,22 @@ public class Machine implements Runnable{
     			commandJP(Character.getNumericValue(command.charAt(2)), 
 					  	  Character.getNumericValue(command.charAt(3)));
     			break;
-    		case "JE":
-    			commandJE(Character.getNumericValue(command.charAt(2)), 
-					  	  Character.getNumericValue(command.charAt(3)));	
-    			break;
-    		case "JL":
-    			commandJL(Character.getNumericValue(command.charAt(2)), 
+    		case "JA": // >  CF = 0 and ZF = 0
+    			commandJA(Character.getNumericValue(command.charAt(2)), 
 					  	  Character.getNumericValue(command.charAt(3)));
     			break;
-    		case "JG":
+    		case "JG": // >= CF = 0
     			commandJG(Character.getNumericValue(command.charAt(2)), 
 					  	  Character.getNumericValue(command.charAt(3)));
     			break;
+    		case "JB": // < CF = 0
+    			commandJB(Character.getNumericValue(command.charAt(2)), 
+					  	  Character.getNumericValue(command.charAt(3)));
+    			break;
+    		case "JL": // <= CF = 1 or ZF = 1
+    			commandJL(Character.getNumericValue(command.charAt(2)), 
+				  	  Character.getNumericValue(command.charAt(3)));
+				break;
     	    //ISVEDIMO IR IVEDIMO KOMANDOS
     		case "OP":
     			commandOP(Character.getNumericValue(command.charAt(2)), 
@@ -506,15 +510,15 @@ public class Machine implements Runnable{
     	IC[0] = (byte)x;
     	IC[1] = (byte)y;
     }
-    public void commandJE(int x, int y){
-    	if(getBit(3) == 1){
+    public void commandJA(int x, int y){
+    	if(getBit(4) == 0 && getBit(3) == 0){ //>
     		IC[0] = (byte)x;
         	IC[1] = (byte)y;
     	}else{
     		incIC();
     	}
     }
-    public void commandJL(int x, int y){
+    public void commandJG(int x, int y){ //>=
     	if(getBit(4) == 0){
     		IC[0] = (byte)x;
         	IC[1] = (byte)y;
@@ -522,8 +526,16 @@ public class Machine implements Runnable{
     		incIC();
     	}
     }
-    public void commandJG(int x, int y){
-    	if(getBit(4) == 0 && getBit(3) == 0){
+    public void commandJB(int x, int y){ //< 
+    	if(getBit(4) == 1){
+    		IC[0] = (byte)x;
+        	IC[1] = (byte)y;
+    	}else{
+    		incIC();
+    	}
+    }
+    public void commandJL(int x, int y){ // <=
+    	if(getBit(4) == 1 || getBit(3) == 1){
     		IC[0] = (byte)x;
         	IC[1] = (byte)y;
     	}else{
@@ -812,13 +824,8 @@ public class Machine implements Runnable{
     	System.out.println("BX = " + (Integer.toHexString(BX[0]).toUpperCase()) + " " + 
         	Integer.toHexString(BX[1]).toUpperCase() +" " + Integer.toHexString(BX[2]).toUpperCase()
         	+ " " + Integer.toHexString(BX[3]).toUpperCase());
-    	/*
-    	System.out.println("AX = " + unsignedToBytes(AX[0]) + " " + unsignedToBytes(AX[1]) + " " + AX[2] + " " + AX[3]);
-    	System.out.println("BX = " + BX[0] + " " + BX[1] + " " + BX[2] + " " + BX[3]);
-    	System.out.println("IC = " + IC[0] + " " + IC[1]);
-*/
-    	System.out.println("IC = " + (Integer.toHexString(IC[0]).toUpperCase()) + " " + 
-        	Integer.toHexString(IC[1]).toUpperCase());
+     	System.out.println("IC = " + (Integer.toHexString(IC[0]).toUpperCase()) + " " + 
+        Integer.toHexString(IC[1]).toUpperCase());
     	System.out.println("C  = " + C);
     	RM.printRegisters();
     	VM.printRegisters();

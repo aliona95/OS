@@ -101,9 +101,11 @@ public class Loader {
 		// VALDYMO PERDAVIMO KOMANDOS
 		case "JP":
 			break;
-		case "JE":	
+		case "JA":	
 			break;
 		case "JL":
+			break;
+		case "JB":
 			break;
 		case "JG":
 			break;
