@@ -36,7 +36,7 @@ public class RM {
 	private static JFrame frmMm;
 	public static JTextField txt;
 	public static JTable table_1;
-	public static String[] filenames;
+	public static String[] programsNames;
 	private int dataBloksNum = 0;
 	public static TextField textAX;
 	public static TextField textBX;
@@ -388,9 +388,9 @@ public class RM {
 		    	
 		    	// nemest i cikla, kai daug failu bus !!!!!!!!!!!!!!!!!!
 		    	// mest i cikla, 1 - kelintas failas, po to is foro paimt ji
-		        filenames = txt.getText().split(", ");
-		        for (int i = 0; i < filenames.length; i++) {
-					fontButtons[i] = new JRadioButton(filenames[i]);
+		        programsNames = txt.getText().split(", ");
+		        for (int i = 0; i <  programsNames.length; i++) {
+					fontButtons[i] = new JRadioButton(programsNames[i]);
 					fontGroup.add(fontButtons[i]);
 				    panel.add(fontButtons[i]);
 				
@@ -411,7 +411,7 @@ public class RM {
 				    frmMm.getContentPane().repaint();  
 		        }
 				    try {
-				    	Machine.filenames = filenames;
+				    	Machine.programsNames = programsNames;
 				    	Thread t = new Thread(new Machine());
 				    	t.start();
 					} catch (Exception e1) {

@@ -1,0 +1,29 @@
+#failas2
+$WOW
+.DAT 4
+1111
+2222
+3333
+$WRT
+LA90
+LA92
+HALT
+$END
+
+#failas1
+$WOW
+.DAT 4
+0000
+0001
+1111
+2222
+3333
+zzzz
+zzzz
+$WRT
+LAF0
+BAF0
+COPB
+HALT
+$END
+

@@ -29,8 +29,8 @@ public class Machine implements Runnable{
 	public final static byte memory[] = new byte[BLOCKS * BLOCK_SIZE * WORD_SIZE];
 	private VM vm;
 	
-	public static String[] filenames;
-	public static String filename = "failas.txt";
+	public static String[] programsNames;
+	public static String fileSystem = "failas.txt";
 	
 	public final static byte PLR[] = new byte[WORD_SIZE];
 	public static final byte AX[]  = new byte[WORD_SIZE];
@@ -51,38 +51,35 @@ public class Machine implements Runnable{
     public int X, Y;
     public static boolean click = false;
     
-    private void loader(String fileName, int vmCounter) throws Exception{
+    private void loader(String programName, int vmCounter) throws Exception{
     	///Irasome psl. lenteles skaicius.
     	for(int i = 0; i < BLOCK_SIZE; i++){
     		memory[BLOCK_SIZE * WORD_SIZE * (PLR[2] * 10 + PLR[3]) + i * WORD_SIZE] = (byte) pagingTablesNum[(vmCounter * BLOCK_SIZE) + i]; 
     		System.out.println("Paging table num " + pagingTablesNum[i]);
     	}
-    	//System.out.println("MEMORY SK" + BLOCK_SIZE * WORD_SIZE * (PLR[2]*10+PLR[3]));
-    	
-    	String command;
-    	BufferedReader inputStream = new BufferedReader(new FileReader(fileName));
+    	String command = " ";
+    	BufferedReader inputStream = new BufferedReader(new FileReader(fileSystem));
     	int dat[] = new int[2];
     	int code[] = new int[2];
     	code[0] = 0;
     	code[1] = 0;
+    	
+    	while(!(command = inputStream.readLine()).equals("#" + programName)){} // failu sistemoje randame programa
     
     	expect("$WOW",inputStream);
-    	expect(".NAM ", inputStream);
+    	//expect(".NAM ", inputStream);
     	expect(".DAT ", inputStream);
-    	
     	
     	//System.out.println("DataBlocksNum" + dataBlocksNum);
     	dat[0] = BLOCK_SIZE - dataBlocksNum;
     	//System.out.println("DAT[0] = " + dat[0]);
     	dat[1] = 0;
     	int dataSegment = dat[0];
-    	while(!(command = inputStream.readLine()).startsWith("$WRT")){
+    	while(!(command = inputStream.readLine()).equals("$WRT")){ //duomenu segmenta irasome i atminti
     		writeToMemory(command, dat);
     		dat = nextAddr(dat);
     	}
-   
-    	// WRT
-    	while(!(command = inputStream.readLine()).startsWith("$END")){
+    	while(!(command = inputStream.readLine()).equals("$END")){  //kodo segmenta irasome i atminti
     		writeToMemory(command, code);
     		//System.out.println("DATA SEGMENT" + dataSegment);
     		//System.out.println("CODe" + code[0]);
@@ -92,7 +89,6 @@ public class Machine implements Runnable{
     			code = nextAddr(code);	
     		}
     	}
-  
     	// END
     	inputStream.close();
     }
@@ -836,9 +832,54 @@ public class Machine implements Runnable{
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-		Machine machine = new Machine();
-		Loader loader = new Loader();
-		machine.setPagingTable();
+    	Machine machine = new Machine();
+    	Loader loader = new Loader(fileSystem);
+    	machine.setPagingTable();
+    	for(int i = 0; i < programsNames.length; i++){
+    		int counter = 0;
+    		boolean run = true;
+    		//pradedame vykdyti programa
+    		while(run){
+    			try{
+    				if(counter == 0){
+    					MODE = 1;  
+    					loader.checkCommands(programsNames[i]); //patikriname ar korektiska programa
+    					machine.loader(programsNames[i], i + 1);
+    					machine.vm = new VM();
+    			    	machine.vm.vm();
+    			    	machine.printMemory();
+        			}
+    				machine.printRegisters();
+		    		if(this.step.equals("0")){
+		    			machine.pause();
+		    		}
+		    		machine.printMemory();
+			   		machine.commandInterpreter();
+			   		machine.TI -= 1;
+			   		machine.startIO();
+			   		machine.checkInterrupt();
+			   		counter++;
+			   		click = false;
+    			}catch(Exception e){
+    				machine.PLR[3]++;
+		    		machine.plr3++;
+		    		machine.SI = 0;
+					machine.IC[0] = 0;
+					machine.IC[1] = 0;
+					machine.TI = 10;
+					if(vm.frmVm != null){
+						vm.frmVm.dispose();
+					}
+					run = false;
+		    		System.out.println(e.toString());
+		    		break;
+    			}
+    		}
+    	}
+    }
+}
+    
+		/*
 		for(int i = 0; i < filenames.length; i++){
 			this.step = "0";
 			// KOMANDU VYKDYMAS
@@ -890,5 +931,4 @@ public class Machine implements Runnable{
 			    	}
 			     } 		
 		}
-    }
-}
+    }*/
