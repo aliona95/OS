@@ -40,6 +40,13 @@ public class VM {
 	public static TextField textIC;
 	public static TextField textC;
 	public static TextField textSF;
+	public static TextField textDS;
+	public static TextField textCS;
+	
+	private TextField textField;
+	private Label label;
+	private TextField textField_1;
+	private Label label_1;
 	/**
 	 * Launch the application.
 	 */
@@ -75,7 +82,7 @@ public class VM {
 		
 		Label label_2 = new Label("Registrai");
 		label_2.setForeground(Color.BLUE);
-		label_2.setBounds(157, 28, 62, 22);
+		label_2.setBounds(98, 28, 62, 22);
 		frmVm.getContentPane().add(label_2);
 		
 		Label label_3 = new Label("AX");
@@ -174,6 +181,30 @@ public class VM {
 		table.setBackground(new Color(255, 215, 0));
 		table.setBounds(30, 177, 636, 272);
 		frmVm.getContentPane().add(table);
+		
+		textDS = new TextField();
+		textDS.setText("0000");
+		textDS.setEnabled(false);
+		textDS.setEditable(false);
+		textDS.setBackground(Color.LIGHT_GRAY);
+		textDS.setBounds(383, 85, 72, 22);
+		frmVm.getContentPane().add(textDS);
+		
+		label = new Label("DS");
+		label.setBounds(356, 85, 22, 22);
+		frmVm.getContentPane().add(label);
+		
+		textCS = new TextField();
+		textCS.setText("0000");
+		textCS.setEnabled(false);
+		textCS.setEditable(false);
+		textCS.setBackground(Color.LIGHT_GRAY);
+		textCS.setBounds(494, 56, 72, 22);
+		frmVm.getContentPane().add(textCS);
+		
+		label_1 = new Label("CS");
+		label_1.setBounds(466, 56, 22, 22);
+		frmVm.getContentPane().add(label_1);
 		frmVm.setBounds(100, 100, 703, 510);
 		frmVm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
@@ -232,6 +263,10 @@ public class VM {
 		textSF.setText(Integer.toHexString(Machine.unsignedToBytes(Machine.SF)).toUpperCase());
 		textIC.setText((Integer.toHexString(Machine.IC[0]).toUpperCase()) + " " + 
 	        	Integer.toHexString(Machine.IC[1]).toUpperCase());
+	    textDS.setText((Integer.toHexString(Machine.DS[0]).toUpperCase()) + 
+	        	Integer.toHexString(Machine.DS[1]).toUpperCase());
+	    textCS.setText((Integer.toHexString(Machine.CS[0]).toUpperCase()) + 
+	        	Integer.toHexString(Machine.CS[1]).toUpperCase());
 		if(Machine.C == 0){
 			textC.setText("FALSE");
 		}else{

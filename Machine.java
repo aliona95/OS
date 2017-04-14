@@ -46,6 +46,8 @@ public class Machine implements Runnable{
     public static byte PI;
     public static byte SI;
     public static byte TI = 10;
+    public static byte CS [] = {0,0};
+    public static byte DS [] = {0,0};
     public int channelNumber;
     public byte channelDeviceBuffer[] = new byte[64];
     public int X, Y;
@@ -75,6 +77,11 @@ public class Machine implements Runnable{
     	//System.out.println("DAT[0] = " + dat[0]);
     	dat[1] = 0;
     	int dataSegment = dat[0];
+    	DS[0] = (byte) dat[0];
+		DS[1] = (byte) dat[1];
+		CS[0] = (byte) code[0];
+    	CS[1] = (byte) code[1];
+    	int counter = 0; 
     	while(!(command = inputStream.readLine()).equals("$WRT")){ //duomenu segmenta irasome i atminti
     		writeToMemory(command, dat);
     		dat = nextAddr(dat);
@@ -878,57 +885,3 @@ public class Machine implements Runnable{
     	}
     }
 }
-    
-		/*
-		for(int i = 0; i < filenames.length; i++){
-			this.step = "0";
-			// KOMANDU VYKDYMAS
-			//System.out.println("AS CIA---------------------------------------------------------------------------------------------------------------------------------");
-			int counter = 0;
-			boolean run = true;
-			RM.fontButtons[i].setSelected(true);
-			if(i > 0){
-				RM.fontButtons[0].setSelected(false);
-			}
-			//Vykdome programa pazingsniui
-		    while(run){
-		    		try{
-			    		if(counter == 0){
-			    			MODE = 1;  
-			    			// setMode
-			    			filename = filenames[i];
-			    			loader.checkCommands(filename);
-			    			machine.loader(filename, i + 1);
-			    		    machine.vm = new VM();
-			    			machine.vm.vm();
-			    			machine.printMemory();
-			    		}
-			    		machine.printRegisters();
-			    		if(this.step.equals("0")){
-			    			machine.pause();
-			    		}
-			    		machine.printMemory();
-				   		machine.commandInterpreter();
-				   		machine.TI -= 1;
-				   		machine.startIO();
-				   		machine.checkInterrupt();
-				   		counter++;
-				   		click = false;
-			    	}catch(Exception e){
-			    		machine.PLR[3]++;
-			    		machine.plr3++;
-			    		counter = 0;
-			    		machine.SI = 0;
-						machine.IC[0] = 0;
-						machine.IC[1] = 0;
-						machine.TI = 10;
-						if(vm.frmVm != null){
-							vm.frmVm.dispose();
-						}
-						run = false;
-			    		System.out.println(e.toString());
-			    		break;
-			    	}
-			     } 		
-		}
-    }*/

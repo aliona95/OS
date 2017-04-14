@@ -1,6 +1,6 @@
 #failas2
 $WOW
-.DAT 4
+.DAT 7
 1111
 2222
 3333

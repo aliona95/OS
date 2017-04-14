@@ -46,6 +46,9 @@ public class RM {
 	public static TextField textPI;
 	public static TextField textSI;
 	public static TextField textTI;
+	public static TextField textDS;
+	public static TextField textCS;
+	
 	public static JRadioButton userButton;
 	public static JRadioButton supervisorButton;
 	
@@ -110,7 +113,7 @@ public class RM {
 		
 		// REALIOS MASINOS ATMINTIES ISVALYMAS
 		JButton btnIvalytiAtmint = new JButton("I\u0161valyti atmint\u012F");
-		btnIvalytiAtmint.setBounds(501, 28, 128, 23);
+		btnIvalytiAtmint.setBounds(654, 55, 128, 23);
 		btnIvalytiAtmint.setForeground(new Color(255, 255, 255));
 		btnIvalytiAtmint.setBackground(new Color(112, 128, 144));
 		btnIvalytiAtmint.addActionListener(new ActionListener() {
@@ -209,7 +212,7 @@ public class RM {
 		
 		// REGISTRU ISVALYMAS
 		JButton btnIvalytiRegistrus = new JButton("I\u0161valyti registrus");
-		btnIvalytiRegistrus.setBounds(501, 84, 128, 23);
+		btnIvalytiRegistrus.setBounds(654, 110, 128, 23);
 		btnIvalytiRegistrus.setForeground(new Color(255, 255, 255));
 		btnIvalytiRegistrus.setBackground(new Color(112, 128, 144));
 		btnIvalytiRegistrus.addActionListener(new ActionListener() {
@@ -371,6 +374,30 @@ public class RM {
 		label_12.setBounds(355, 85, 22, 22);
 		frmMm.getContentPane().add(label_12);
 		
+	    textDS = new TextField();
+	    textDS.setText("0000");
+	    textDS.setEnabled(false);
+	    textDS.setEditable(false);
+	    textDS.setBackground(Color.LIGHT_GRAY);
+	    textDS.setBounds(383, 111, 88, 22);
+		frmMm.getContentPane().add(textDS);
+		
+		Label label_4 = new Label("DS");
+		label_4.setBounds(356, 111, 22, 22);
+		frmMm.getContentPane().add(label_4);
+		
+		textCS = new TextField();
+		textCS.setText("0000");
+		textCS.setEnabled(false);
+		textCS.setEditable(false);
+		textCS.setBackground(Color.LIGHT_GRAY);
+		textCS.setBounds(505, 56, 88, 22);
+		frmMm.getContentPane().add(textCS);
+		
+		Label label_13 = new Label("CS");
+		label_13.setBounds(477, 56, 22, 22);
+		frmMm.getContentPane().add(label_13);
+		
 		// PATIKRINTI KOMANDAS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		btnPradti.addActionListener( new ActionListener()
 		{
@@ -480,7 +507,12 @@ public class RM {
 		textPI.setText(Integer.toString(Machine.PI));
 		textSI.setText(Integer.toString(Machine.SI));
 		textTI.setText(Integer.toString(Machine.TI));
+	    //skaiciuojame realiuoje atmintyje kodo ir duomenu segmentu adresus
 		
+		int segment = Machine.realAddress(Machine.CS[0], Machine.CS[1]) / Machine.BLOCK_SIZE / Machine.WORD_SIZE ;;
+		textCS.setText(Integer.toHexString(segment).toUpperCase());
+		segment = Machine.realAddress(Machine.DS[0], Machine.CS[1]) / Machine.BLOCK_SIZE / Machine.WORD_SIZE ;
+		textDS.setText(Integer.toHexString(segment).toUpperCase());
 	}
 	public static void userMode() throws InterruptedException{
 		userButton.setSelected(true);
