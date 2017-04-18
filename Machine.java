@@ -218,7 +218,7 @@ public class Machine implements Runnable{
     			commandJG(Character.getNumericValue(command.charAt(2)), 
 					  	  Character.getNumericValue(command.charAt(3)));
     			break;
-    		case "JB": // < CF = 0
+    		case "JB": // < CF = 1
     			commandJB(Character.getNumericValue(command.charAt(2)), 
 					  	  Character.getNumericValue(command.charAt(3)));
     			break;
@@ -833,12 +833,11 @@ public class Machine implements Runnable{
     public static int unsignedToBytes(byte b){
     	return b & 0XFF;
     }
+    /*
     public void pause(){
-    	//System.out.println("Press any key to continue");
-    	//new java.util.Scanner(System.in).nextLine();
-    	this.step = JOptionPane.showInputDialog("Þingsninis reþimas - 0 \nNuolatinis reþimas - 1");
-    	System.out.println("STEP " + step);
+    	
     }
+    */
     public void run(){
     	try {
 			RM.supervisorMode();
@@ -864,16 +863,20 @@ public class Machine implements Runnable{
     			    	machine.printMemory();
         			}
     				machine.printRegisters();
-		    		if(this.step.equals("0")){
-		    			machine.pause();
-		    		}
+    				if(machine.vm.getMode() != 2){
+    					while(machine.vm.getMode() == 0){
+    						//System.out.println("LAUKIAM");
+        			    }
+    					if(machine.vm.getMode() != 2){
+    						machine.vm.setModeWait();
+    					}
+    				}
 		    		machine.printMemory();
 			   		machine.commandInterpreter();
 			   		machine.TI -= 1;
 			   		machine.startIO();
 			   		machine.checkInterrupt();
 			   		counter++;
-			   		click = false;
     			}catch(Exception e){
     				machine.PLR[3]++;
 		    		machine.plr3++;

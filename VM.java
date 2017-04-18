@@ -28,13 +28,13 @@ import javax.swing.border.LineBorder;
 import javax.swing.border.MatteBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.UIManager;
+import javax.swing.JCheckBox;
 
 public class VM {
-
+    public static int mode = 0; // 0 - laukiama kol paspausime rezima, 1 - zingsninis rezimas, 2 - nuolatinis.
 	public static JFrame frmVm;
 	public static JTable table;
 	private int dataBloksNum = 0;
-	
 	public static TextField textAX;
 	public static TextField textBX;
 	public static TextField textIC;
@@ -82,11 +82,11 @@ public class VM {
 		
 		Label label_2 = new Label("Registrai");
 		label_2.setForeground(Color.BLUE);
-		label_2.setBounds(98, 28, 62, 22);
+		label_2.setBounds(28, 30, 62, 22);
 		frmVm.getContentPane().add(label_2);
 		
 		Label label_3 = new Label("AX");
-		label_3.setBounds(157, 56, 28, 22);
+		label_3.setBounds(26, 66, 28, 22);
 		frmVm.getContentPane().add(label_3);
 		
 		textAX = new TextField();
@@ -95,11 +95,11 @@ public class VM {
 		textAX.setEnabled(false);
 		textAX.setBackground(Color.LIGHT_GRAY);
 		textAX.setForeground(Color.BLACK);
-		textAX.setBounds(186, 56, 72, 22);
+		textAX.setBounds(60, 66, 72, 22);
 		frmVm.getContentPane().add(textAX);
 		
 		Label label_4 = new Label("BX");
-		label_4.setBounds(157, 85, 28, 22);
+		label_4.setBounds(26, 107, 28, 22);
 		frmVm.getContentPane().add(label_4);
 		
 		textBX = new TextField();
@@ -107,11 +107,11 @@ public class VM {
 		textBX.setEnabled(false);
 		textBX.setEditable(false);
 		textBX.setBackground(Color.LIGHT_GRAY);
-		textBX.setBounds(186, 84, 72, 22);
+		textBX.setBounds(60, 107, 72, 22);
 		frmVm.getContentPane().add(textBX);
 		
 		Label label_6 = new Label("IC");
-		label_6.setBounds(264, 56, 28, 22);
+		label_6.setBounds(152, 66, 28, 22);
 		frmVm.getContentPane().add(label_6);
 		
 		textIC = new TextField();
@@ -119,11 +119,11 @@ public class VM {
 		textIC.setEnabled(false);
 		textIC.setEditable(false);
 		textIC.setBackground(Color.LIGHT_GRAY);
-		textIC.setBounds(296, 56, 47, 22);
+		textIC.setBounds(183, 66, 47, 22);
 		frmVm.getContentPane().add(textIC);
 		
 		Label label_7 = new Label("C");
-		label_7.setBounds(264, 85, 22, 22);
+		label_7.setBounds(152, 107, 22, 22);
 		frmVm.getContentPane().add(label_7);
 		
 		textC = new TextField();
@@ -131,11 +131,11 @@ public class VM {
 		textC.setEnabled(false);
 		textC.setEditable(false);
 		textC.setBackground(Color.LIGHT_GRAY);
-		textC.setBounds(296, 84, 47, 22);
+		textC.setBounds(183, 107, 47, 22);
 		frmVm.getContentPane().add(textC);
 		
 		Label label_9 = new Label("SF");
-		label_9.setBounds(356, 56, 22, 22);
+		label_9.setBounds(249, 66, 22, 22);
 		frmVm.getContentPane().add(label_9);
 		
 		textSF = new TextField();
@@ -143,7 +143,7 @@ public class VM {
 		textSF.setEnabled(false);
 		textSF.setEditable(false);
 		textSF.setBackground(Color.LIGHT_GRAY);
-		textSF.setBounds(383, 56, 72, 22);
+		textSF.setBounds(277, 66, 72, 22);
 		frmVm.getContentPane().add(textSF);
 		
 		table = new JTable();
@@ -177,7 +177,6 @@ public class VM {
 		));
 		
 		// !!!!! UZSETINTI VISA LENTELE NULIAIS
-		//table.setValueAt("hshj", 6, 7);
 		table.setBackground(new Color(255, 215, 0));
 		table.setBounds(30, 177, 636, 272);
 		frmVm.getContentPane().add(table);
@@ -187,11 +186,11 @@ public class VM {
 		textDS.setEnabled(false);
 		textDS.setEditable(false);
 		textDS.setBackground(Color.LIGHT_GRAY);
-		textDS.setBounds(383, 85, 72, 22);
+		textDS.setBounds(277, 107, 72, 22);
 		frmVm.getContentPane().add(textDS);
 		
 		label = new Label("DS");
-		label.setBounds(356, 85, 22, 22);
+		label.setBounds(249, 107, 22, 22);
 		frmVm.getContentPane().add(label);
 		
 		textCS = new TextField();
@@ -199,21 +198,41 @@ public class VM {
 		textCS.setEnabled(false);
 		textCS.setEditable(false);
 		textCS.setBackground(Color.LIGHT_GRAY);
-		textCS.setBounds(494, 56, 72, 22);
+		textCS.setBounds(398, 66, 72, 22);
 		frmVm.getContentPane().add(textCS);
 		
 		label_1 = new Label("CS");
-		label_1.setBounds(466, 56, 22, 22);
+		label_1.setBounds(370, 66, 22, 22);
 		frmVm.getContentPane().add(label_1);
+		
+		JButton btnNuolatinis = new JButton("Nuolatinis");
+		btnNuolatinis.setToolTipText("");
+		btnNuolatinis.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				//System.out.println("PASPAUSTA Nuolatinis");
+				mode = 2;
+			}
+		});
+		btnNuolatinis.setBounds(558, 107, 100, 22);
+		frmVm.getContentPane().add(btnNuolatinis);
+		
+		JButton btningsninis = new JButton("\u017Dingsninis");
+		btningsninis.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				//System.out.println("PASPAUSTA Zingsninis");
+				mode = 1;
+			}
+		});
+		btningsninis.setBounds(558, 66, 100, 23);
+		frmVm.getContentPane().add(btningsninis);
+		
+		Label label_5 = new Label("Re\u017Eimai :");
+		label_5.setForeground(Color.BLUE);
+		label_5.setBounds(490, 66, 62, 22);
+		frmVm.getContentPane().add(label_5);
 		frmVm.setBounds(100, 100, 703, 510);
 		frmVm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
-	/*
-	public JTable getTable(){
-		return table;
-	}
-	*/
-	// IS TIKRUJU PACHECKINTI
 	public void checkCommands() throws Exception{	
     	// visa uzpildom nuliais
     	for(int row = 1; row < 17; row++){ 
@@ -237,19 +256,6 @@ public class VM {
     			memory = "";
     		}
     	}
-		/*String memory = "";
-		for(int row = 1; row < 17; row++){
-			for(int column = 1; column < 17; column++){
-				int address = Machine.realAddress(row - 1, column - 1);
-				for(int i = 0; i < Machine.WORD_SIZE; i++){
-					memory += (char) Machine.memory[address + i];
-	    		}
-				System.out.println("ADRESAS!!!!!!!!!!!!!!!!!!!!!!!!!!!! " + address);
-				table.setValueAt(memory, row, column);
-				memory = "";
-			}
-			
-		}*/
 	}
 	public static void printRegisters(){
 		textAX.setText(Integer.toHexString(Machine.unsignedToBytes(Machine.AX[0])).toUpperCase() + 
@@ -272,5 +278,11 @@ public class VM {
 		}else{
 			textC.setText("TRUE");
 		}
+	}
+	public int getMode(){
+		return mode;
+	}
+	public void setModeWait(){
+		mode = 0;
 	}
 }
