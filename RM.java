@@ -4,12 +4,6 @@ import java.awt.Label;
 import java.awt.TextField;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.Random;
-
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JRadioButton;
@@ -37,7 +31,6 @@ public class RM {
 	public static JTextField txt;
 	public static JTable table_1;
 	public static String[] programsNames;
-	private int dataBloksNum = 0;
 	public static TextField textAX;
 	public static TextField textBX;
 	public static TextField textPLR;
@@ -48,16 +41,11 @@ public class RM {
 	public static TextField textTI;
 	public static TextField textDS;
 	public static TextField textCS;
-	
 	public static JRadioButton userButton;
 	public static JRadioButton supervisorButton;
-	
-	//private int pagingTablesNum = 4;
-	//private final static int from = 61 * Machine.BLOCK_SIZE * Machine.WORD_SIZE;   // 61 - nuo kur prasideda psl lentele pirma
-	//public int[] pagingNum = new int[3 * Machine.BLOCK_SIZE];
-	
+		
 	static JRadioButton[] fontButtons = new JRadioButton[3];
-	ButtonGroup    fontGroup = new ButtonGroup();
+	ButtonGroup fontGroup = new ButtonGroup();
 	
 	/**
 	 * Launch the application.
@@ -111,25 +99,6 @@ public class RM {
 		supervisorButton.setBackground(new Color(248, 248, 255));
 		frmMm.getContentPane().add(supervisorButton);
 		
-		// REALIOS MASINOS ATMINTIES ISVALYMAS
-		JButton btnIvalytiAtmint = new JButton("I\u0161valyti atmint\u012F");
-		btnIvalytiAtmint.setBounds(654, 55, 128, 23);
-		btnIvalytiAtmint.setForeground(new Color(255, 255, 255));
-		btnIvalytiAtmint.setBackground(new Color(112, 128, 144));
-		btnIvalytiAtmint.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				
-				for(int row = 1; row < 66; row++){ 
-		    		for(int column = 1; column < 17; column++){
-		    			table_1.setValueAt("0000", row, column);
-		    		}
-		    	}
-				frmMm.validate();
-			    frmMm.getContentPane().repaint();
-			}
-		});
-		frmMm.getContentPane().add(btnIvalytiAtmint);
-		
 		
 		
 		Label label_2 = new Label("Registrai");
@@ -138,7 +107,7 @@ public class RM {
 		frmMm.getContentPane().add(label_2);
 		
 		Label label_3 = new Label("PLR");
-		label_3.setBounds(157, 56, 22, 22);
+		label_3.setBounds(144, 56, 35, 22);
 		frmMm.getContentPane().add(label_3);
 		
 		textPLR = new TextField();
@@ -212,7 +181,7 @@ public class RM {
 		
 		// REGISTRU ISVALYMAS
 		JButton btnIvalytiRegistrus = new JButton("I\u0161valyti registrus");
-		btnIvalytiRegistrus.setBounds(654, 110, 128, 23);
+		btnIvalytiRegistrus.setBounds(652, 56, 128, 23);
 		btnIvalytiRegistrus.setForeground(new Color(255, 255, 255));
 		btnIvalytiRegistrus.setBackground(new Color(112, 128, 144));
 		btnIvalytiRegistrus.addActionListener(new ActionListener() {
@@ -233,16 +202,16 @@ public class RM {
 		txt = new JTextField();
 		txt.setText("");
 		txt.setToolTipText("");
-		txt.setBounds(157, 522, 314, 20);
+		txt.setBounds(189, 522, 314, 20);
 		frmMm.getContentPane().add(txt);
 		txt.setColumns(10);
 		
-		JLabel label_10 = new JLabel("U\u017Eduoties failas:");
-		label_10.setBounds(30, 525, 109, 14);
-		frmMm.getContentPane().add(label_10);
+		JLabel lblUduoiPavadinimai = new JLabel("U\u017Eduo\u010Di\u0173 pavadinimai:");
+		lblUduoiPavadinimai.setBounds(30, 525, 149, 14);
+		frmMm.getContentPane().add(lblUduoiPavadinimai);
 		
 		JButton btnPradti = new JButton("Prad\u0117ti");
-		btnPradti.setBounds(504, 521, 89, 23);
+		btnPradti.setBounds(540, 521, 89, 23);
 		btnPradti.setForeground(new Color(255, 255, 255));
 		btnPradti.setBackground(new Color(112, 128, 144));
 		frmMm.getContentPane().add(btnPradti);
@@ -331,12 +300,15 @@ public class RM {
 		));
 		scrollPane.setViewportView(table_1);
 		
+		
+		///Pildymas nuliais
+		/*
 		for(int row = 1; row < 65; row++){ 
     		for(int column = 1; column < 17; column++){
     			table_1.setValueAt("0000", row, column);
     		}
     	}
-		
+		*/
 		JLabel lblkeltiIrVykdomi = new JLabel("\u012Ekelti ir \r\nvykdomi");
 		lblkeltiIrVykdomi.setBounds(684, 163, 117, 42);
 		frmMm.getContentPane().add(lblkeltiIrVykdomi);
@@ -398,42 +370,23 @@ public class RM {
 		label_13.setBounds(477, 56, 22, 22);
 		frmMm.getContentPane().add(label_13);
 		
-		// PATIKRINTI KOMANDAS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 		btnPradti.addActionListener( new ActionListener()
 		{
 		    public void actionPerformed(ActionEvent e)
 		    {
-		    	// PALEIDZIA VM
-		    	// metodas, sudedantis i psl lentele random sk
-		    	// PAKEISTI!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-		    	// PADARYTI SU DAUG FAILU
+		        // nustatome pradine PLR reiksme
 		    	Machine.PLR[0] = 0;
 		    	Machine.PLR[1] = 14;
 		    	Machine.PLR[2] = 6;
 		    	Machine.PLR[3] = 1;
-		    	//textPLR.setText("0E3D");
-		    	
-		    	// nemest i cikla, kai daug failu bus !!!!!!!!!!!!!!!!!!
-		    	// mest i cikla, 1 - kelintas failas, po to is foro paimt ji
+		    
+		    	// nuskaitome irasytas programas
 		        programsNames = txt.getText().split(", ");
 		        for (int i = 0; i <  programsNames.length; i++) {
 					fontButtons[i] = new JRadioButton(programsNames[i]);
 					fontGroup.add(fontButtons[i]);
 				    panel.add(fontButtons[i]);
-				
 				    fontButtons[0].setSelected(true);
-				    
-			    	
-			    	int dataCounter = 0;
-			    	
-			    	// visa uzpildom nuliais, kai paspaudziam isvalyti?????
-			    	/*for(int row = 1; row < 17; row++){ 
-			    		for(int column = 1; column < 17; column++){
-			    			
-			    			table_1.setValueAt("0000", row, column);
-			    		}
-			    	}*/
-  	   	
 			    	frmMm.validate();
 				    frmMm.getContentPane().repaint();  
 		        }
@@ -471,18 +424,6 @@ public class RM {
 				memory = "";
 			}
 		}
-		/*
-		for(int column = 1; column < 17; column++){
-			for(int i = 0; i < 4; i++){
-				memory += Machine.memory[61 * 16 * 4 + i + (column-1) * 4];
-				System.out.println("ADRESAS " + (61 * 16 * 4 + i + (column-1) * 4));
-			}
-			table_1.setValueAt(memory, 63, column);
-			memory = "";
-		}
-		*/
-		
-		System.out.println("COUNTER " + counter);
 	}
 	public static void printRegisters(){
 		textAX.setText(Integer.toHexString(Machine.unsignedToBytes(Machine.AX[0])).toUpperCase() + 
@@ -495,8 +436,8 @@ public class RM {
 				Integer.toHexString(Machine.unsignedToBytes(Machine.BX[3])).toUpperCase());
 		textPLR.setText(Integer.toHexString(Machine.unsignedToBytes(Machine.PLR[0])).toUpperCase() + 
 				Integer.toHexString(Machine.unsignedToBytes(Machine.PLR[1])).toUpperCase() + 
-				Integer.toHexString(Machine.unsignedToBytes(Machine.plr2)).toUpperCase() + 
-				Integer.toHexString(Machine.unsignedToBytes(Machine.plr3)).toUpperCase());
+				Integer.toHexString(Machine.unsignedToBytes(Machine.PLR[2])).toUpperCase() + 
+				Integer.toHexString(Machine.unsignedToBytes(Machine.PLR[3])).toUpperCase());
 		textIC.setText((Integer.toHexString(Machine.IC[0]).toUpperCase()) + " " + 
 	        	Integer.toHexString(Machine.IC[1]).toUpperCase());
 		if(Machine.C == 0){
@@ -507,36 +448,23 @@ public class RM {
 		textPI.setText(Integer.toString(Machine.PI));
 		textSI.setText(Integer.toString(Machine.SI));
 		textTI.setText(Integer.toString(Machine.TI));
-	    //skaiciuojame realiuoje atmintyje kodo ir duomenu segmentu adresus
 		
+	    //skaiciuojame realiuoje atmintyje kodo ir duomenu segmentu adresus
 		int segment = Machine.realAddress(Machine.CS[0], Machine.CS[1]) / Machine.BLOCK_SIZE / Machine.WORD_SIZE ;;
 		textCS.setText(Integer.toHexString(segment).toUpperCase());
 		segment = Machine.realAddress(Machine.DS[0], Machine.CS[1]) / Machine.BLOCK_SIZE / Machine.WORD_SIZE ;
 		textDS.setText(Integer.toHexString(segment).toUpperCase());
 	}
 	public static void userMode() throws InterruptedException{
-		userButton.setSelected(true);
-		JOptionPane.showMessageDialog(null, "Vartotojo reþimas", "Information", JOptionPane.INFORMATION_MESSAGE);
-		frmMm.validate();
-	    frmMm.getContentPane().repaint();
-		Thread thread = new Thread();
-		thread.start();
-		thread.sleep(2000);
 		RM.supervisorButton.setSelected(false);
-		frmMm.validate();
-	    frmMm.getContentPane().repaint();  
+		RM.userButton.setSelected(true);
 	}
 	public static void supervisorMode() throws InterruptedException{
-		userButton.setSelected(false);
-		frmMm.validate();
-	    frmMm.getContentPane().repaint();
-		Thread thread = new Thread();
-		thread.start();
-		thread.sleep(2000);
 		RM.supervisorButton.setSelected(true);
-		JOptionPane.showMessageDialog(null, "Supervizoriaus reþimas", "Information", JOptionPane.INFORMATION_MESSAGE);
 		RM.userButton.setSelected(false);
-		frmMm.validate();
-	    frmMm.getContentPane().repaint();  
+	}
+	
+	public static void currentProgram(){
+		//Padaryti cia check keistusi vykdant programas
 	}
 }

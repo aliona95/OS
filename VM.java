@@ -56,7 +56,7 @@ public class VM {
 				try {
 					VM window = new VM();
 					window.frmVm.setVisible(true);
-					window.checkCommands();
+					//window.checkCommands(); //pildome nuliais
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -206,6 +206,7 @@ public class VM {
 		frmVm.getContentPane().add(label_1);
 		
 		JButton btnNuolatinis = new JButton("Nuolatinis");
+		btnNuolatinis.setBackground(Color.LIGHT_GRAY);
 		btnNuolatinis.setToolTipText("");
 		btnNuolatinis.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -213,26 +214,28 @@ public class VM {
 				mode = 2;
 			}
 		});
-		btnNuolatinis.setBounds(558, 107, 100, 22);
+		btnNuolatinis.setBounds(523, 107, 100, 22);
 		frmVm.getContentPane().add(btnNuolatinis);
 		
 		JButton btningsninis = new JButton("\u017Dingsninis");
+		btningsninis.setBackground(Color.LIGHT_GRAY);
 		btningsninis.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				//System.out.println("PASPAUSTA Zingsninis");
 				mode = 1;
 			}
 		});
-		btningsninis.setBounds(558, 66, 100, 23);
+		btningsninis.setBounds(523, 66, 100, 23);
 		frmVm.getContentPane().add(btningsninis);
 		
-		Label label_5 = new Label("Re\u017Eimai :");
+		Label label_5 = new Label("Re\u017Eimai");
 		label_5.setForeground(Color.BLUE);
-		label_5.setBounds(490, 66, 62, 22);
+		label_5.setBounds(523, 30, 62, 22);
 		frmVm.getContentPane().add(label_5);
 		frmVm.setBounds(100, 100, 703, 510);
 		frmVm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
+	/*
 	public void checkCommands() throws Exception{	
     	// visa uzpildom nuliais
     	for(int row = 1; row < 17; row++){ 
@@ -241,6 +244,7 @@ public class VM {
     		}
     	}
 	}
+	*/
 	public static void printMemory(){
 		String memory = "";
 		for(int row = 1; row < 17; row++){ 

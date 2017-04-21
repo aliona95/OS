@@ -21,9 +21,10 @@ public class Machine implements Runnable{
 	public final static long MAX_VALUE = 0xFFFFFFFFL;
 	public int[] pagingTablesNum = new int[3 * BLOCK_SIZE];
 	public static String step = "0";
+	/*
 	public static byte plr3 = 13;
 	public static byte plr2 = 3;
-	
+	*/
 	private static int dataBlocksNum = 0;
 	
 	public final static byte memory[] = new byte[BLOCKS * BLOCK_SIZE * WORD_SIZE];
@@ -861,11 +862,13 @@ public class Machine implements Runnable{
     					machine.vm = new VM();
     			    	machine.vm.vm();
     			    	machine.printMemory();
+    			    	machine.vm.setModeWait();
         			}
+    				RM.userMode();
     				machine.printRegisters();
     				if(machine.vm.getMode() != 2){
     					while(machine.vm.getMode() == 0){
-    						//System.out.println("LAUKIAM");
+    						System.out.print("");
         			    }
     					if(machine.vm.getMode() != 2){
     						machine.vm.setModeWait();
@@ -879,7 +882,7 @@ public class Machine implements Runnable{
 			   		counter++;
     			}catch(Exception e){
     				machine.PLR[3]++;
-		    		machine.plr3++;
+		    		//machine.plr3++;
 		    		machine.SI = 0;
 					machine.IC[0] = 0;
 					machine.IC[1] = 0;
