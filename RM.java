@@ -43,6 +43,7 @@ public class RM {
 	public static TextField textCS;
 	public static JRadioButton userButton;
 	public static JRadioButton supervisorButton;
+	public static int programsNum = 0;
 		
 	static JRadioButton[] fontButtons = new JRadioButton[3];
 	ButtonGroup fontGroup = new ButtonGroup();
@@ -309,12 +310,12 @@ public class RM {
     		}
     	}
 		*/
-		JLabel lblkeltiIrVykdomi = new JLabel("\u012Ekelti ir \r\nvykdomi");
+		JLabel lblkeltiIrVykdomi = new JLabel("\u012Ekeltos ir \r\nvykdomos");
 		lblkeltiIrVykdomi.setBounds(684, 163, 117, 42);
 		frmMm.getContentPane().add(lblkeltiIrVykdomi);
 		
-		JLabel lblFailai = new JLabel("failai:");
-		lblFailai.setBounds(684, 191, 46, 14);
+		JLabel lblFailai = new JLabel("užduotys:");
+		lblFailai.setBounds(684, 191, 136, 14);
 		frmMm.getContentPane().add(lblFailai);
 		
 		JPanel panel = new JPanel();
@@ -382,11 +383,12 @@ public class RM {
 		    
 		    	// nuskaitome irasytas programas
 		        programsNames = txt.getText().split(", ");
+		        programsNum = 0;
 		        for (int i = 0; i <  programsNames.length; i++) {
 					fontButtons[i] = new JRadioButton(programsNames[i]);
 					fontGroup.add(fontButtons[i]);
 				    panel.add(fontButtons[i]);
-				    fontButtons[0].setSelected(true);
+				   // fontButtons[programsNum].setSelected(true);
 			    	frmMm.validate();
 				    frmMm.getContentPane().repaint();  
 		        }
@@ -465,6 +467,7 @@ public class RM {
 	}
 	
 	public static void currentProgram(){
-		//Padaryti cia check keistusi vykdant programas
+		RM.fontButtons[programsNum].setSelected(true);
+		programsNum++;
 	}
 }

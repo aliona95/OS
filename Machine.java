@@ -21,10 +21,6 @@ public class Machine implements Runnable{
 	public final static long MAX_VALUE = 0xFFFFFFFFL;
 	public int[] pagingTablesNum = new int[3 * BLOCK_SIZE];
 	public static String step = "0";
-	/*
-	public static byte plr3 = 13;
-	public static byte plr2 = 3;
-	*/
 	private static int dataBlocksNum = 0;
 	
 	public final static byte memory[] = new byte[BLOCKS * BLOCK_SIZE * WORD_SIZE];
@@ -57,7 +53,7 @@ public class Machine implements Runnable{
     private void loader(String programName, int vmCounter) throws Exception{
     	///Irasome psl. lenteles skaicius.
     	for(int i = 0; i < BLOCK_SIZE; i++){
-    		memory[BLOCK_SIZE * WORD_SIZE * (PLR[2] * 10 + PLR[3]) + i * WORD_SIZE] = (byte) pagingTablesNum[(vmCounter * BLOCK_SIZE) + i]; 
+    		memory[BLOCK_SIZE * WORD_SIZE * (PLR[2] * 10 + PLR[3]) + i * WORD_SIZE] = (byte) pagingTablesNum[((vmCounter - 1) * BLOCK_SIZE) + i];  ///negerai jauciu 
     		System.out.println("Paging table num " + pagingTablesNum[i]);
     	}
     	String command = " ";
@@ -852,6 +848,7 @@ public class Machine implements Runnable{
     	for(int i = 0; i < programsNames.length; i++){
     		int counter = 0;
     		boolean run = true;
+    		RM.currentProgram();
     		//pradedame vykdyti programa
     		while(run){
     			try{
