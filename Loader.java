@@ -7,7 +7,7 @@ import javax.swing.JOptionPane;
 public class Loader {
 	private final int programNameLength = 10; //nurodomas programos vardo ilgis 10 baitu
 	private String fileSystem;
-	
+	private boolean checkComands = true;
 	Loader(String fileSystem){
 		this.fileSystem = fileSystem;
 	}
@@ -19,10 +19,16 @@ public class Loader {
 	    while(command != null){ //ieskome programos failu sistemoje
 	    	command = inputStream.readLine();
 	    	if(command == null){
+	    		JOptionPane.showMessageDialog(null,"Programa " + progamName + " failu sistemoje neegzistuoja ", "Error", JOptionPane.ERROR_MESSAGE);
+	    		Machine.programsNum--;
+	    		checkComands = false;
 	    		throw new Exception("Programa " + progamName + " failu sistemoje neegzistuoja ");
 	    	}
 	    	if(command.equals('#' + progamName)){
 	    		if(command.length() > programNameLength){
+	    			JOptionPane.showMessageDialog(null,"Programos vardas turi buti ne ilgesnis nei 10b", "Error", JOptionPane.ERROR_MESSAGE);
+	    			Machine.programsNum--;
+	    			checkComands = false;
 	    			throw new Exception("Programos vardas turi buti ne ilgesnis nei 10b");
 	    		}
 	    		break;
@@ -36,6 +42,9 @@ public class Loader {
 	    	command = inputStream.readLine();
 	    	line++;
 	    	if(command == null){
+	    		JOptionPane.showMessageDialog(null,"Nerasta duomenu segmento pabaiga", "Error", JOptionPane.ERROR_MESSAGE);
+	    		Machine.programsNum--;
+	    		checkComands = false;
 	    		throw new Exception("Nerasta duomenu segmento pabaiga");
 	    	}
 	    	if(command.equals("$WRT")){ //tikriname duomenu segmento pabaiga
@@ -49,6 +58,9 @@ public class Loader {
 	    	command = inputStream.readLine();
 	    	line++;
 	    	if(command == null){
+	    		JOptionPane.showMessageDialog(null,"Nerasta kodo segmento pabaiga", "Error", JOptionPane.ERROR_MESSAGE);
+	    		Machine.programsNum--;
+	    		checkComands = false;
 	    		throw new Exception("Nerasta kodo segmento pabaiga");
 	    	}
 	    	if(command.equals("$END")){ //suradome kodo segmento pabaiga
@@ -62,11 +74,17 @@ public class Loader {
 	
     public void checkDataCommandLength(String command, int line) throws Exception{
     	if(command.length() > Machine.WORD_SIZE){
+    		JOptionPane.showMessageDialog(null,"Duomenu eilute neuzima daugiau nei " + Machine.WORD_SIZE + ". Klaida eiluteje " + line, "Error", JOptionPane.ERROR_MESSAGE);
+    		Machine.programsNum--;
+    		checkComands = false;
     		throw new Exception("Duomenu eilute neuzima daugiau nei " + Machine.WORD_SIZE + ". Klaida eiluteje " + line);
     	}
     }
     public void checkCodeCommandLength(String command, int line) throws Exception{
     	if(command.length() != Machine.WORD_SIZE){
+    		JOptionPane.showMessageDialog(null,"Komandos dydis turi buti " + Machine.WORD_SIZE + ". Klaida eiluteje " + line, "Error", JOptionPane.ERROR_MESSAGE);
+    		Machine.programsNum--;
+    		checkComands = false;
     		throw new Exception("Komandos dydis turi buti " + Machine.WORD_SIZE + ". Klaida eiluteje " + line);
     	}
     }
@@ -117,13 +135,23 @@ public class Loader {
 		// PABAIGA
 		case "HA":
 			if(!commandStart.substring(2, 4).equals("LT")){
-				JOptionPane.showMessageDialog(null, "Unknown command " + command + "at line " + line, "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(null, "Nezinoma komanda " + command + "eiluteje " + line, "Error", JOptionPane.ERROR_MESSAGE);
+				Machine.programsNum--;
+				checkComands = false;
 				throw new Exception("Neatpazinta komanda " + command + "eiluteje " + line);
 			}
 			break;
 		default:
-			JOptionPane.showMessageDialog(null, "Unknown command " + command + "at line " + line, "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, "Nezinoma komanda " + command + "eiluteje " + line, "Error", JOptionPane.ERROR_MESSAGE);
+			Machine.programsNum--;
+			checkComands = false;
 			throw new Exception("Neatpazinta komanda " + command + "eiluteje " + line);
 	   }
+	}
+	public boolean checkCommands(){
+		return checkComands;
+	}
+	public void setCheckCommands(boolean checkComands){
+		this.checkComands = checkComands;
 	}
 }

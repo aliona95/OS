@@ -42,7 +42,6 @@ public class VM {
 	public static TextField textSF;
 	public static TextField textDS;
 	public static TextField textCS;
-	
 	private TextField textField;
 	private Label label;
 	private TextField textField_1;
@@ -56,6 +55,7 @@ public class VM {
 				try {
 					VM window = new VM();
 					window.frmVm.setVisible(true);
+					frmVm.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 					//window.checkCommands(); //pildome nuliais
 				} catch (Exception e) {
 					e.printStackTrace();

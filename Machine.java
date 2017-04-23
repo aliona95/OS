@@ -19,7 +19,7 @@ public class Machine implements Runnable{
 	public final static int USER_BLOCKS = 48;
 	private final static int BLOCKS = 64;
 	public final static long MAX_VALUE = 0xFFFFFFFFL;
-	public int[] pagingTablesNum = new int[3 * BLOCK_SIZE];
+	public static int[] pagingTablesNum = new int[3 * BLOCK_SIZE];
 	public static String step = "0";
 	private static int dataBlocksNum = 0;
 	
@@ -48,7 +48,8 @@ public class Machine implements Runnable{
     public int channelNumber;
     public byte channelDeviceBuffer[] = new byte[64];
     public int X, Y;
-    public static boolean click = false;
+    public static int programsNum = 0;
+    public static Loader loader;
     
     private void loader(String programName, int vmCounter) throws Exception{
     	///Irasome psl. lenteles skaicius.
@@ -801,6 +802,9 @@ public class Machine implements Runnable{
     			}
     		}
     	}else{
+    		JOptionPane.showMessageDialog(null,"Invalid command " + command + " expected " + expectCommand, "Error", JOptionPane.ERROR_MESSAGE);
+    		Machine.programsNum--;
+    		loader.setCheckCommands(false);
     		throw new Exception("Invalid command " + command + " expected " + expectCommand);
     	}
     }
@@ -843,19 +847,22 @@ public class Machine implements Runnable{
 			e1.printStackTrace();
 		}
     	Machine machine = new Machine();
-    	Loader loader = new Loader(fileSystem);
-    	machine.setPagingTable();
+        loader = new Loader(fileSystem);
+    	if(programsNum == 0){
+    		machine.setPagingTable();
+    	}
     	for(int i = 0; i < programsNames.length; i++){
     		int counter = 0;
     		boolean run = true;
     		RM.currentProgram();
+    		programsNum++;
     		//pradedame vykdyti programa
     		while(run){
     			try{
     				if(counter == 0){
     					MODE = 1;  
     					loader.checkCommands(programsNames[i]); //patikriname ar korektiska programa
-    					machine.loader(programsNames[i], i + 1);
+    					machine.loader(programsNames[i], programsNum);
     					machine.vm = new VM();
     			    	machine.vm.vm();
     			    	machine.printMemory();
@@ -878,7 +885,11 @@ public class Machine implements Runnable{
 			   		machine.checkInterrupt();
 			   		counter++;
     			}catch(Exception e){
-    				machine.PLR[3]++;
+    				if(loader.checkCommands()){
+    					machine.PLR[3]++;
+    				}else{
+    					loader.setCheckCommands(true);
+    				}
 		    		//machine.plr3++;
 		    		machine.SI = 0;
 					machine.IC[0] = 0;

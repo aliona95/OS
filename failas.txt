@@ -1,4 +1,4 @@
-#failas2
+#f
 $WOW
 .DAT 7
 1111

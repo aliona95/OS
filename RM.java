@@ -44,6 +44,7 @@ public class RM {
 	public static JRadioButton userButton;
 	public static JRadioButton supervisorButton;
 	public static int programsNum = 0;
+	
 		
 	static JRadioButton[] fontButtons = new JRadioButton[3];
 	ButtonGroup fontGroup = new ButtonGroup();
@@ -58,6 +59,7 @@ public class RM {
 				try {
 					RM window = new RM();
 					window.frmMm.setVisible(true);
+					supervisorMode();
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
@@ -179,26 +181,6 @@ public class RM {
 		textC.setEditable(false);
 		textC.setBackground(Color.LIGHT_GRAY);
 		frmMm.getContentPane().add(textC);
-		
-		// REGISTRU ISVALYMAS
-		JButton btnIvalytiRegistrus = new JButton("I\u0161valyti registrus");
-		btnIvalytiRegistrus.setBounds(652, 56, 128, 23);
-		btnIvalytiRegistrus.setForeground(new Color(255, 255, 255));
-		btnIvalytiRegistrus.setBackground(new Color(112, 128, 144));
-		btnIvalytiRegistrus.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				
-				textPLR.setText("0000");
-				textIC.setText("0000");
-				textPI.setText("0000");
-				textSI.setText("0000");
-				textTI.setText("0000");
-				textC.setText("0000");
-				frmMm.validate();
-			    frmMm.getContentPane().repaint();
-			}
-		});
-		frmMm.getContentPane().add(btnIvalytiRegistrus);
 		
 		txt = new JTextField();
 		txt.setText("");
@@ -376,11 +358,12 @@ public class RM {
 		    public void actionPerformed(ActionEvent e)
 		    {
 		        // nustatome pradine PLR reiksme
-		    	Machine.PLR[0] = 0;
-		    	Machine.PLR[1] = 14;
-		    	Machine.PLR[2] = 6;
-		    	Machine.PLR[3] = 1;
-		    
+		    	if(Machine.programsNum == 0){
+		    		Machine.PLR[0] = 0;
+			    	Machine.PLR[1] = 15;
+			    	Machine.PLR[2] = 6;
+			    	Machine.PLR[3] = 1;
+		    	}
 		    	// nuskaitome irasytas programas
 		        programsNames = txt.getText().split(", ");
 		        programsNum = 0;
@@ -438,8 +421,7 @@ public class RM {
 				Integer.toHexString(Machine.unsignedToBytes(Machine.BX[3])).toUpperCase());
 		textPLR.setText(Integer.toHexString(Machine.unsignedToBytes(Machine.PLR[0])).toUpperCase() + 
 				Integer.toHexString(Machine.unsignedToBytes(Machine.PLR[1])).toUpperCase() + 
-				Integer.toHexString(Machine.unsignedToBytes(Machine.PLR[2])).toUpperCase() + 
-				Integer.toHexString(Machine.unsignedToBytes(Machine.PLR[3])).toUpperCase());
+				Integer.toHexString(Machine.PLR[2]*10 + Machine.PLR[3]).toUpperCase());
 		textIC.setText((Integer.toHexString(Machine.IC[0]).toUpperCase()) + " " + 
 	        	Integer.toHexString(Machine.IC[1]).toUpperCase());
 		if(Machine.C == 0){
@@ -453,9 +435,9 @@ public class RM {
 		
 	    //skaiciuojame realiuoje atmintyje kodo ir duomenu segmentu adresus
 		int segment = Machine.realAddress(Machine.CS[0], Machine.CS[1]) / Machine.BLOCK_SIZE / Machine.WORD_SIZE ;;
-		textCS.setText(Integer.toHexString(segment).toUpperCase());
+		textCS.setText(Integer.toHexString(segment).toUpperCase()+"0");
 		segment = Machine.realAddress(Machine.DS[0], Machine.CS[1]) / Machine.BLOCK_SIZE / Machine.WORD_SIZE ;
-		textDS.setText(Integer.toHexString(segment).toUpperCase());
+		textDS.setText(Integer.toHexString(segment).toUpperCase()+"0");
 	}
 	public static void userMode() throws InterruptedException{
 		RM.supervisorButton.setSelected(false);
