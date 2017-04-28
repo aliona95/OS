@@ -30,7 +30,7 @@ import javax.swing.border.TitledBorder;
 import javax.swing.UIManager;
 import javax.swing.JCheckBox;
 
-public class VM {
+public class VM extends Thread{
     public static int mode = 0; // 0 - laukiama kol paspausime rezima, 1 - zingsninis rezimas, 2 - nuolatinis.
 	public static JFrame frmVm;
 	public static JTable table;
@@ -56,6 +56,20 @@ public class VM {
 					VM window = new VM();
 					window.frmVm.setVisible(true);
 					frmVm.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+					frmVm.addWindowListener(new java.awt.event.WindowAdapter() {
+					    @Override
+					    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+					    	Machine.PLR[3]++;
+					    	Machine.IC[0] = 0;
+					    	Machine.IC[1] = 0;
+					    	try {
+								RM.supervisorMode();
+							} catch (InterruptedException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+					    }
+					});
 					//window.checkCommands(); //pildome nuliais
 				} catch (Exception e) {
 					e.printStackTrace();

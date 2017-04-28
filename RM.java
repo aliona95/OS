@@ -30,7 +30,7 @@ public class RM {
 	private static JFrame frmMm;
 	public static JTextField txt;
 	public static JTable table_1;
-	public static String[] programsNames;
+	public static String fileSystem;
 	public static TextField textAX;
 	public static TextField textBX;
 	public static TextField textPLR;
@@ -44,10 +44,11 @@ public class RM {
 	public static JRadioButton userButton;
 	public static JRadioButton supervisorButton;
 	public static int programsNum = 0;
-	
+	public static boolean exit = true;
+	public static JPanel panel;
 		
 	static JRadioButton[] fontButtons = new JRadioButton[3];
-	ButtonGroup fontGroup = new ButtonGroup();
+	static ButtonGroup fontGroup = new ButtonGroup();
 	
 	/**
 	 * Launch the application.
@@ -189,7 +190,7 @@ public class RM {
 		frmMm.getContentPane().add(txt);
 		txt.setColumns(10);
 		
-		JLabel lblUduoiPavadinimai = new JLabel("U\u017Eduo\u010Di\u0173 pavadinimai:");
+		JLabel lblUduoiPavadinimai = new JLabel("Fail\u0173 sistema:");
 		lblUduoiPavadinimai.setBounds(30, 525, 149, 14);
 		frmMm.getContentPane().add(lblUduoiPavadinimai);
 		
@@ -300,7 +301,7 @@ public class RM {
 		lblFailai.setBounds(684, 191, 136, 14);
 		frmMm.getContentPane().add(lblFailai);
 		
-		JPanel panel = new JPanel();
+	    panel = new JPanel();
 		panel.setBorder(new BevelBorder(BevelBorder.LOWERED, Color.DARK_GRAY, null, null, null));
 		panel.setBounds(684, 214, 117, 230);
 		frmMm.getContentPane().add(panel);
@@ -365,24 +366,16 @@ public class RM {
 			    	Machine.PLR[3] = 1;
 		    	}
 		    	// nuskaitome irasytas programas
-		        programsNames = txt.getText().split(", ");
+		        fileSystem = txt.getText();
 		        programsNum = 0;
-		        for (int i = 0; i <  programsNames.length; i++) {
-					fontButtons[i] = new JRadioButton(programsNames[i]);
-					fontGroup.add(fontButtons[i]);
-				    panel.add(fontButtons[i]);
-				   // fontButtons[programsNum].setSelected(true);
-			    	frmMm.validate();
-				    frmMm.getContentPane().repaint();  
-		        }
-				    try {
-				    	Machine.programsNames = programsNames;
-				    	Thread t = new Thread(new Machine());
-				    	t.start();
-					} catch (Exception e1) {
+				try {
+					Machine.fileSystem = fileSystem;
+				    Thread t = new Thread(new Machine());
+				    t.start();
+				} catch (Exception e1) {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
-					}
+				}
 		    }
 		});
 		System.out.println(panel.getComponentCount());
@@ -448,7 +441,13 @@ public class RM {
 		RM.userButton.setSelected(false);
 	}
 	
-	public static void currentProgram(){
+	public static void currentProgram(String programName){
+		fontButtons[programsNum] = new JRadioButton(programName);
+		fontGroup.add(fontButtons[programsNum]);
+	    panel.add(fontButtons[programsNum]);
+	   // fontButtons[programsNum].setSelected(true);
+    	frmMm.validate();
+	    frmMm.getContentPane().repaint();  
 		RM.fontButtons[programsNum].setSelected(true);
 		programsNum++;
 	}

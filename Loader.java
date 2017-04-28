@@ -1,6 +1,7 @@
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 
 import javax.swing.JOptionPane;
 
@@ -74,18 +75,18 @@ public class Loader {
 	
     public void checkDataCommandLength(String command, int line) throws Exception{
     	if(command.length() > Machine.WORD_SIZE){
-    		JOptionPane.showMessageDialog(null,"Duomenu eilute neuzima daugiau nei " + Machine.WORD_SIZE + ". Klaida eiluteje " + line, "Error", JOptionPane.ERROR_MESSAGE);
+    		JOptionPane.showMessageDialog(null,"Duomenu eilute neuzima daugiau nei " + Machine.WORD_SIZE + ". Klaida " + line + "-oje eiluteje.   ", "Error", JOptionPane.ERROR_MESSAGE);
     		Machine.programsNum--;
     		checkComands = false;
-    		throw new Exception("Duomenu eilute neuzima daugiau nei " + Machine.WORD_SIZE + ". Klaida eiluteje " + line);
+    		throw new Exception("Duomenu eilute neuzima daugiau nei " + Machine.WORD_SIZE + ". Klaida " + line + "-oje eiluteje.   ");
     	}
     }
     public void checkCodeCommandLength(String command, int line) throws Exception{
     	if(command.length() != Machine.WORD_SIZE){
-    		JOptionPane.showMessageDialog(null,"Komandos dydis turi buti " + Machine.WORD_SIZE + ". Klaida eiluteje " + line, "Error", JOptionPane.ERROR_MESSAGE);
+    		JOptionPane.showMessageDialog(null,"Komandos dydis turi buti " + Machine.WORD_SIZE + ". Klaida " + line + "-oje eiluteje.   ", "Error", JOptionPane.ERROR_MESSAGE);
     		Machine.programsNum--;
     		checkComands = false;
-    		throw new Exception("Komandos dydis turi buti " + Machine.WORD_SIZE + ". Klaida eiluteje " + line);
+    		throw new Exception("Komandos dydis turi buti " + Machine.WORD_SIZE + ". Klaida " + line + "-oje eiluteje.   ");
     	}
     }
 	public void checkCommand(String command, int line) throws Exception{
@@ -135,17 +136,17 @@ public class Loader {
 		// PABAIGA
 		case "HA":
 			if(!commandStart.substring(2, 4).equals("LT")){
-				JOptionPane.showMessageDialog(null, "Nezinoma komanda " + command + "eiluteje " + line, "Error", JOptionPane.ERROR_MESSAGE);
+				JOptionPane.showMessageDialog(null, "Nezinoma komanda " + command + " " + line + "-oje eiluteje.   ", "Error", JOptionPane.ERROR_MESSAGE);
 				Machine.programsNum--;
 				checkComands = false;
-				throw new Exception("Neatpazinta komanda " + command + "eiluteje " + line);
+				throw new Exception("Neatpazinta komanda " + command + " " + line + "-oje eiluteje.   ");
 			}
 			break;
 		default:
-			JOptionPane.showMessageDialog(null, "Nezinoma komanda " + command + "eiluteje " + line, "Error", JOptionPane.ERROR_MESSAGE);
+			JOptionPane.showMessageDialog(null, "Nezinoma komanda " + command + " " + line + "-oje eiluteje.   ", "Error", JOptionPane.ERROR_MESSAGE);
 			Machine.programsNum--;
 			checkComands = false;
-			throw new Exception("Neatpazinta komanda " + command + "eiluteje " + line);
+			throw new Exception("Neatpazinta komanda " + command + " " + line + "-oje eiluteje.   ");
 	   }
 	}
 	public boolean checkCommands(){
@@ -153,5 +154,26 @@ public class Loader {
 	}
 	public void setCheckCommands(boolean checkComands){
 		this.checkComands = checkComands;
+	}
+	public String[] getProgramsNames() throws IOException{
+		String[] programsNames = new String[100];
+		try {
+			BufferedReader inputStream = new BufferedReader(new FileReader(fileSystem));
+			String command = "";
+			int n = 0;
+			Machine.programsNames =  programsNames;
+		    while (inputStream != null) {
+		    	command = inputStream.readLine();
+		    	if(command.startsWith("#")){
+		    		Machine.programsNames[n] = command.substring(1);
+		    		n++;
+		    		Machine.programNameNum = n;
+		    	}
+			}  
+		} catch (FileNotFoundException e) {
+			System.out.println("Nerasta failu sistema");
+			//e.printStackTrace();
+		}
+		return programsNames;
 	}
 }

@@ -23,11 +23,11 @@ public class Machine implements Runnable{
 	public static String step = "0";
 	private static int dataBlocksNum = 0;
 	
-	public final static byte memory[] = new byte[BLOCKS * BLOCK_SIZE * WORD_SIZE];
+	public static byte memory[] = new byte[BLOCKS * BLOCK_SIZE * WORD_SIZE];
 	private VM vm;
 	
-	public static String[] programsNames;
-	public static String fileSystem = "failas.txt";
+	public static String[] programsNames = new String[100];;
+	public static String fileSystem;
 	
 	public final static byte PLR[] = new byte[WORD_SIZE];
 	public static final byte AX[]  = new byte[WORD_SIZE];
@@ -50,6 +50,7 @@ public class Machine implements Runnable{
     public int X, Y;
     public static int programsNum = 0;
     public static Loader loader;
+    public static int programNameNum = 0;
     
     private void loader(String programName, int vmCounter) throws Exception{
     	///Irasome psl. lenteles skaicius.
@@ -648,7 +649,7 @@ public class Machine implements Runnable{
 			switch((byte) SI){
 			case 1:
 				System.out.println("Program interrupt. Data input");
-				JOptionPane.showMessageDialog(null, "Data input", "Program interrupt", JOptionPane.INFORMATION_MESSAGE);
+				//JOptionPane.showMessageDialog(null, "Data input", "Program interrupt", JOptionPane.INFORMATION_MESSAGE);
 				MODE = 1;
 				RM.supervisorMode();
 				channelNumber = 1;
@@ -658,12 +659,7 @@ public class Machine implements Runnable{
 				break;
 			case 2:
 				System.out.println("Program interrupt. Data output");
-				JOptionPane.showMessageDialog(null, "Data output", "Program interrupt", JOptionPane.INFORMATION_MESSAGE);
-				String output = "";
-				for(int i = 0; i < channelDeviceBuffer.length; i++){
-					output += channelDeviceBuffer[i];
-				}
-				System.out.println(output);
+				//JOptionPane.showMessageDialog(null, "Data output", "Program interrupt", JOptionPane.INFORMATION_MESSAGE);
 				MODE = 1;
 				RM.supervisorMode();
 				channelNumber = 2;
@@ -684,7 +680,7 @@ public class Machine implements Runnable{
 			switch((byte) IOI){
 			case 1:
 				System.out.println("Channel 1 done");
-				JOptionPane.showMessageDialog(null, "Channel 1 done", "Information", JOptionPane.INFORMATION_MESSAGE);
+				//JOptionPane.showMessageDialog(null, "Channel 1 done", "Information", JOptionPane.INFORMATION_MESSAGE);
 				MODE = 1;
 				RM.supervisorMode();
 				IOI = 0;
@@ -693,7 +689,7 @@ public class Machine implements Runnable{
 				break;
 			case 2:
 				System.out.println("Channel 2 done");
-				JOptionPane.showMessageDialog(null, "Channel 2 done", "Information", JOptionPane.INFORMATION_MESSAGE);
+				//JOptionPane.showMessageDialog(null, "Channel 2 done", "Information", JOptionPane.INFORMATION_MESSAGE);
 				MODE = 1;
 				RM.supervisorMode();
 				IOI = 0;
@@ -702,7 +698,7 @@ public class Machine implements Runnable{
 				break;
 			case 3:
 				System.out.println("Channel 3 done");
-				JOptionPane.showMessageDialog(null, "Channel 3 done", "Information", JOptionPane.INFORMATION_MESSAGE);
+				//JOptionPane.showMessageDialog(null, "Channel 3 done", "Information", JOptionPane.INFORMATION_MESSAGE);
 				MODE = 1;
 				RM.supervisorMode();
 				IOI = 0;
@@ -738,7 +734,7 @@ public class Machine implements Runnable{
 			if(length < 64){
 				channelDeviceBuffer[length] = (byte) '$';     // 36
 			}
-			int startPos = X * BLOCK_SIZE + Y;  ///patasyt poto iki F!!!!!!!!!!!!!!!!!!!!!!!!!
+			int startPos = X * BLOCK_SIZE + Y;  ///F
 			outerloopCH1:
 			for(int i = 0; i < BLOCK_SIZE; i++){
 				int x = (startPos + i) / 16;
@@ -752,7 +748,8 @@ public class Machine implements Runnable{
 				}
 			}
 			CH1 = (byte) 0;
-			IOI += 1; 
+			IOI += 1;
+			printMemory();
 		}
 		if(channelNumber == 2){
 			channelNumber = 0;
@@ -777,8 +774,16 @@ public class Machine implements Runnable{
 				}
 				System.out.write(channelDeviceBuffer[i]);
 			}
+			String output = "";
+			for(int i = 0; i < channelDeviceBuffer.length; i++){
+				output += String.valueOf(Character.toChars(channelDeviceBuffer[i]));
+			}
+			System.out.println(output);
+			JOptionPane.showMessageDialog(null, output ,"Data output", JOptionPane.INFORMATION_MESSAGE);
+			
 			CH2 = 0;
 			IOI += 2; 
+			//printMemory();
 		}
 		if(channelNumber == 3){
 			channelNumber = 0;
@@ -834,11 +839,35 @@ public class Machine implements Runnable{
     public static int unsignedToBytes(byte b){
     	return b & 0XFF;
     }
-    /*
-    public void pause(){
-    	
+    public void clearMemory(){
+    	byte memory[] = new byte[BLOCKS * BLOCK_SIZE * WORD_SIZE];
+    	Machine.memory = memory;
     }
-    */
+    public void clearRegisters(){
+    	for(int i = 0; i < WORD_SIZE; i++){
+    		AX[i] = 0;
+    		BX[i] = 0;
+    	}
+    	IC[0] = 0;
+    	IC[1] = 0;
+    	SF = 0;
+    	PLR[0] = 0;
+        PLR[1] = 15;
+        PLR[2] = 6;
+    	PLR[3] = 1;
+    	TI = 10;
+    } 
+    public void clearRegistersVm(){
+    	for(int i = 0; i < WORD_SIZE; i++){
+    		AX[i] = 0;
+    		BX[i] = 0;
+    	}
+    	IC[0] = 0;
+    	IC[1] = 0;
+    	SF = 0;
+    	TI = 10;
+    }
+    
     public void run(){
     	try {
 			RM.supervisorMode();
@@ -846,19 +875,40 @@ public class Machine implements Runnable{
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-    	Machine machine = new Machine();
-        loader = new Loader(fileSystem);
-    	if(programsNum == 0){
-    		machine.setPagingTable();
+    	if(Machine.PLR[3] == 4){
+    		programsNum = 0;
     	}
-    	for(int i = 0; i < programsNames.length; i++){
+    	Machine machine = new Machine();
+        loader = new Loader(fileSystem); // gauname programu masyvo vardus
+        try{
+        	 programsNames = loader.getProgramsNames();
+        }catch(Exception e){
+        	System.out.println(e.toString());
+        }
+    	if(programsNum == 0){
+    		machine.clearRegisters();
+    		machine.clearMemory();
+    		machine.setPagingTable();
+    		//machine.printMemory();
+    		//machine.printRegisters();
+    	}
+    	for(int i = 0; i < programNameNum; i++){
+    		machine.clearRegistersVm();
+    		if(Machine.PLR[3] == 4){
+        		programsNum = 0;
+        		machine.clearRegisters();
+        		machine.clearMemory();
+        		machine.setPagingTable();
+        	}
     		int counter = 0;
     		boolean run = true;
-    		RM.currentProgram();
+    		RM.currentProgram(programsNames[i]);
     		programsNum++;
     		//pradedame vykdyti programa
     		while(run){
     			try{
+    				machine.startIO();
+    				//machine.printRegisters();
     				if(counter == 0){
     					MODE = 1;  
     					loader.checkCommands(programsNames[i]); //patikriname ar korektiska programa
@@ -881,7 +931,6 @@ public class Machine implements Runnable{
 		    		machine.printMemory();
 			   		machine.commandInterpreter();
 			   		machine.TI -= 1;
-			   		machine.startIO();
 			   		machine.checkInterrupt();
 			   		counter++;
     			}catch(Exception e){
@@ -899,7 +948,7 @@ public class Machine implements Runnable{
 						vm.frmVm.dispose();
 					}
 					run = false;
-		    		System.out.println(e.toString());
+		    		//System.out.println(e.toString());
 		    		break;
     			}
     		}

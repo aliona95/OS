@@ -1,29 +1,45 @@
-#f
+//Truksta jump not equal
+//pliusai, minusai
+//paryskinimas
+//db duomenys 0000d '  '
+#ciklas
+$WOW
+.DAT 7
+0000
+0001
+3333
+$WRT
+LB90
+BB90
+LA90
+BA91
+BB91
+CA91
+JA02
+JB02
+HALT
+$END
+#programa
 $WOW
 .DAT 7
 1111
-2222
+1110
 3333
 $WRT
 LA90
-LA91
+BA91
+CA91
+JL00
 HALT
 $END
-
-#failas1
+#programa1
 $WOW
-.DAT 4
-0000
-0001
+.DAT 3
+1110
 1111
-2222
 3333
-zzzz
-zzzz
 $WRT
-LAF0
-BAF0
-COPB
+IP90
+OPD0
 HALT
 $END
-
