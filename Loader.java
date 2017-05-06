@@ -128,6 +128,8 @@ public class Loader {
 			break;
 		case "JG":
 			break;
+		case "JN":
+			break;
 	    //ISVEDIMO IR IVEDIMO KOMANDOS
 		case "OP":
 			break;

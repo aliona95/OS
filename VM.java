@@ -1,4 +1,5 @@
 import java.awt.EventQueue;
+import java.awt.Font;
 
 import javax.swing.JFrame;
 import javax.swing.JTextField;
@@ -7,6 +8,8 @@ import javax.swing.JProgressBar;
 import javax.swing.JEditorPane;
 import javax.swing.JTable;
 import java.awt.Color;
+import java.awt.Component;
+
 import javax.swing.JRadioButton;
 import java.awt.GridLayout;
 import java.awt.Panel;
@@ -16,6 +19,8 @@ import javax.swing.JMenuBar;
 import javax.swing.JButton;
 import java.awt.Label;
 import java.awt.TextField;
+
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import java.awt.event.ActionListener;
 import java.io.BufferedReader;
@@ -46,6 +51,8 @@ public class VM extends Thread{
 	private Label label;
 	private TextField textField_1;
 	private Label label_1;
+	public static int vmTableRow = 0;
+	public static int vmTableColumn = 0;
 	/**
 	 * Launch the application.
 	 */
@@ -186,13 +193,21 @@ public class VM extends Thread{
 				{"F", null, null, null, null, null, null, null, null, null, null, null, null, null, null, null, null},
 			},
 			new String[] {
-				"New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column", "New column"
+					"-", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "A", "B", "C", "D", "E", "F"
 			}
 		));
 		
 		// !!!!! UZSETINTI VISA LENTELE NULIAIS
 		table.setBackground(new Color(255, 215, 0));
 		table.setBounds(30, 177, 636, 272);
+		
+		/////////////////////////////////////////////////////////////////////
+		/*VM.MyCellRenderer mcr = new VM.MyCellRenderer();
+        for (int columnIndex = 0; columnIndex < table.getColumnCount(); columnIndex++) {
+        	table.getColumnModel().getColumn(columnIndex).setCellRenderer(mcr); 
+        }
+		*/
+		
 		frmVm.getContentPane().add(table);
 		
 		textDS = new TextField();
@@ -225,6 +240,7 @@ public class VM extends Thread{
 		btnNuolatinis.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				//System.out.println("PASPAUSTA Nuolatinis");
+				// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!PERPIESTI
 				mode = 2;
 			}
 		});
@@ -237,6 +253,17 @@ public class VM extends Thread{
 			public void actionPerformed(ActionEvent e) {
 				//System.out.println("PASPAUSTA Zingsninis");
 				mode = 1;
+				VM.MyCellRenderer mcr = new VM.MyCellRenderer();
+		        //for (int columnIndex = 0; columnIndex < table.getColumnCount(); columnIndex++) {
+				if(vmTableColumn == 16){
+					vmTableColumn = 0;
+					vmTableRow++;
+				}
+				vmTableColumn++;	
+				table.getColumnModel().getColumn(VM.getVmColumn()).setCellRenderer(mcr); 
+		        	
+		        	//}
+				frmVm.validate();
 			}
 		});
 		btningsninis.setBounds(523, 66, 100, 23);
@@ -259,6 +286,22 @@ public class VM extends Thread{
     	}
 	}
 	*/
+	// setters & getters
+	public static void setVmRow(int row){
+		vmTableRow = row;
+	}
+	public static void setVmColumn(int column){
+		vmTableColumn = column;
+	}
+	public static int getVmRow(){
+		return vmTableRow;
+	}
+	public static int getVmColumn(){
+		return vmTableColumn;
+	}
+	public JTable getVmTable(){
+		return this.table;
+	}
 	public static void printMemory(){
 		String memory = "";
 		for(int row = 1; row < 17; row++){ 
@@ -269,6 +312,10 @@ public class VM extends Thread{
     			for(int i = 0; i < Machine.WORD_SIZE; i++){
     				memory += (char)Machine.memory[address + i];
         		}
+    			System.out.println("memory " + memory);
+    			if(!memory.trim().isEmpty()){
+    				//System.out.println("DUOMENYS " + memory + memory.length()) ;
+    			}
     			System.out.println("memory " +memory);
     			table.setValueAt(memory, row, column);
     			memory = "";
@@ -303,4 +350,35 @@ public class VM extends Thread{
 	public void setModeWait(){
 		mode = 0;
 	}
+	
+	//////
+	
+	public static class MyCellRenderer extends javax.swing.table.DefaultTableCellRenderer {
+
+        /**
+		 * 
+		 */
+		private static final long serialVersionUID = 1L;
+
+		@Override
+        public java.awt.Component getTableCellRendererComponent(javax.swing.JTable table, java.lang.Object value,
+                boolean isSelected, boolean hasFocus, int row, int column) {
+        	
+        	java.awt.Component  cellComponent = super.getTableCellRendererComponent(table, value, 
+        		isSelected, hasFocus, row, column);
+        	if(Machine.isJump){
+        		VM.setVmColumn(Machine.jumpToColumn);
+        		VM.setVmRow(Machine.jumpToRow);
+        		setBackground((row == VM.getVmRow() + 1) && (column == VM.getVmColumn() + 1) ? Color.lightGray : new Color(255, 215, 0));
+        		System.out.println("JUMPAS " + Machine.jumpToColumn + " " + Machine.jumpToRow);
+        		Machine.isJump = false;
+        	}else{
+        		setBackground((row == VM.getVmRow() + 1) && (column == VM.getVmColumn()) ? Color.lightGray : new Color(255, 215, 0));
+        	}
+        	System.out.println("VM ROW = " + VM.getVmRow());
+        	System.out.println("VM COLUMN = " + VM.getVmColumn());
+        	return cellComponent;
+        }
+	}    
+	
 }

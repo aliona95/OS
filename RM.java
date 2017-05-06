@@ -297,7 +297,7 @@ public class RM {
 		lblkeltiIrVykdomi.setBounds(684, 163, 117, 42);
 		frmMm.getContentPane().add(lblkeltiIrVykdomi);
 		
-		JLabel lblFailai = new JLabel("uûduotys:");
+		JLabel lblFailai = new JLabel("u≈æduotys:");
 		lblFailai.setBounds(684, 191, 136, 14);
 		frmMm.getContentPane().add(lblFailai);
 		

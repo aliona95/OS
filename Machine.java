@@ -1,3 +1,6 @@
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Font;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -6,6 +9,10 @@ import java.io.InputStreamReader;
 import java.util.Random;
 
 import javax.swing.JOptionPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableCellRenderer;
+
+
 
 /**
  * 
@@ -34,7 +41,7 @@ public class Machine implements Runnable{
 	public static final byte BX[]  = new byte[WORD_SIZE];
 	public static final byte IC[]  = {0, 0};  // kelinta komanda vykdoma
 	public static byte C;             
-    public static byte SF; // X X X X CF ZF X X  
+    public static byte SF; // X X X CF ZF X X X  
     private byte MODE;   // 1 - supervizorius, 0 - vartotojas
     private byte CH1;
     private byte CH2;
@@ -51,6 +58,9 @@ public class Machine implements Runnable{
     public static int programsNum = 0;
     public static Loader loader;
     public static int programNameNum = 0;
+    static boolean isJump = false;
+    static int jumpToRow = 0;
+    static int jumpToColumn = 0;
     
     private void loader(String programName, int vmCounter) throws Exception{
     	///Irasome psl. lenteles skaicius.
@@ -129,13 +139,12 @@ public class Machine implements Runnable{
     }
     public void commandInterpreter() throws Exception{
     	String command = "";
-    	int address = realAddress(IC[0], IC[1]);
+    	int address = realAddress(IC[0], IC[1]);   // IC[0] - x, IC[1] - y (atv nei koord)
     	// Paimame komanda is atminties
     	for(int i = 0; i < WORD_SIZE; i++){
     		command += (char)memory[address + i];
     	}
     	String commandStart = command;
-    	//System.out.println("KOMANDA " + command);
     	switch(commandStart.substring(0, 2)){  // paimame pirmus 2 komandos simbolius
     		// ATMINTIES KOMANDOS
     		case "LA":
@@ -225,6 +234,10 @@ public class Machine implements Runnable{
     			commandJL(Character.getNumericValue(command.charAt(2)), 
 				  	  Character.getNumericValue(command.charAt(3)));
 				break;
+    		case "JN": // ZF = 0
+    			commandJN(Character.getNumericValue(command.charAt(2)), 
+					  	  Character.getNumericValue(command.charAt(3)));
+    			break;
     	    //ISVEDIMO IR IVEDIMO KOMANDOS
     		case "OP":
     			commandOP(Character.getNumericValue(command.charAt(2)), 
@@ -508,11 +521,17 @@ public class Machine implements Runnable{
     public void commandJP(int x, int y){
     	IC[0] = (byte)x;
     	IC[1] = (byte)y;
+    	isJump = true;
+    	jumpToRow = x;
+    	jumpToColumn = y;
     }
     public void commandJA(int x, int y){
     	if(getBit(4) == 0 && getBit(3) == 0){ //>
     		IC[0] = (byte)x;
         	IC[1] = (byte)y;
+        	isJump = true;
+        	jumpToRow = x;
+        	jumpToColumn = y;
     	}else{
     		incIC();
     	}
@@ -521,6 +540,9 @@ public class Machine implements Runnable{
     	if(getBit(4) == 0){
     		IC[0] = (byte)x;
         	IC[1] = (byte)y;
+        	isJump = true;
+        	jumpToRow = x;
+        	jumpToColumn = y;
     	}else{
     		incIC();
     	}
@@ -529,6 +551,9 @@ public class Machine implements Runnable{
     	if(getBit(4) == 1){
     		IC[0] = (byte)x;
         	IC[1] = (byte)y;
+        	isJump = true;
+        	jumpToRow = x;
+        	jumpToColumn = y;
     	}else{
     		incIC();
     	}
@@ -537,10 +562,25 @@ public class Machine implements Runnable{
     	if(getBit(4) == 1 || getBit(3) == 1){
     		IC[0] = (byte)x;
         	IC[1] = (byte)y;
+        	isJump = true;
+        	jumpToRow = x;
+        	jumpToColumn = y;
     	}else{
     		incIC();
     	}
     }
+    public void commandJN(int x, int y){ // <=
+    	if(getBit(3) == 0){
+    		IC[0] = (byte)x;
+        	IC[1] = (byte)y;
+        	isJump = true;
+        	jumpToRow = x;
+        	jumpToColumn = y;
+    	}else{
+    		incIC();
+    	}
+    }
+    
     //ISVEDIMO IR IVEDIMO KOMANDOS
     public void commandOP(int x, int y){
     	incIC();
@@ -911,6 +951,8 @@ public class Machine implements Runnable{
     				//machine.printRegisters();
     				if(counter == 0){
     					MODE = 1;  
+    					VM.setVmColumn(0);
+						VM.setVmRow(0);
     					loader.checkCommands(programsNames[i]); //patikriname ar korektiska programa
     					machine.loader(programsNames[i], programsNum);
     					machine.vm = new VM();
@@ -948,7 +990,6 @@ public class Machine implements Runnable{
 						vm.frmVm.dispose();
 					}
 					run = false;
-		    		//System.out.println(e.toString());
 		    		break;
     			}
     		}
