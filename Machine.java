@@ -10,6 +10,7 @@ import java.util.Random;
 
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
+import javax.swing.JTextPane;
 import javax.swing.table.DefaultTableCellRenderer;
 
 
@@ -21,6 +22,7 @@ import javax.swing.table.DefaultTableCellRenderer;
  *  
  */
 public class Machine implements Runnable{
+	private static CPU cpu;
 	public final static int WORD_SIZE = 4;
 	public final static int BLOCK_SIZE = 16;
 	public final static int USER_BLOCKS = 48;
@@ -35,7 +37,7 @@ public class Machine implements Runnable{
 	
 	public static String[] programsNames = new String[100];;
 	public static String fileSystem;
-	
+	/*
 	public final static byte PLR[] = new byte[WORD_SIZE];
 	public static final byte AX[]  = new byte[WORD_SIZE];
 	public static final byte BX[]  = new byte[WORD_SIZE];
@@ -52,6 +54,7 @@ public class Machine implements Runnable{
     public static byte TI = 10;
     public static byte CS [] = {0,0};
     public static byte DS [] = {0,0};
+    */
     public int channelNumber;
     public byte channelDeviceBuffer[] = new byte[64];
     public int X, Y;
@@ -62,8 +65,14 @@ public class Machine implements Runnable{
     static int jumpToRow = 0;
     static int jumpToColumn = 0;
     
+    
+    Machine(CPU cpu){
+    	this.cpu = cpu;
+    }
+    
     private void loader(String programName, int vmCounter) throws Exception{
     	///Irasome psl. lenteles skaicius.
+    	byte PLR[] = cpu.getPLR();
     	for(int i = 0; i < BLOCK_SIZE; i++){
     		memory[BLOCK_SIZE * WORD_SIZE * (PLR[2] * 10 + PLR[3]) + i * WORD_SIZE] = (byte) pagingTablesNum[((vmCounter - 1) * BLOCK_SIZE) + i];  ///negerai jauciu 
     		System.out.println("Paging table num " + pagingTablesNum[i]);
@@ -86,10 +95,14 @@ public class Machine implements Runnable{
     	//System.out.println("DAT[0] = " + dat[0]);
     	dat[1] = 0;
     	int dataSegment = dat[0];
+    	byte DS[] = cpu.getDS();
+    	byte CS[] = cpu.getCS();
     	DS[0] = (byte) dat[0];
 		DS[1] = (byte) dat[1];
 		CS[0] = (byte) code[0];
     	CS[1] = (byte) code[1];
+    	cpu.setCS(CS);
+    	cpu.setDS(DS);
     	int counter = 0; 
     	while(!(command = inputStream.readLine()).equals("$WRT")){ //duomenu segmenta irasome i atminti
     		writeToMemory(command, dat);
@@ -116,6 +129,7 @@ public class Machine implements Runnable{
     	}
     }
     public static int realAddress(int x, int y) {
+    	byte PLR[] = cpu.getPLR();
 		int pagingTableAddr = (((int) PLR[2]) * 10 + (int) PLR[3]) * BLOCK_SIZE * WORD_SIZE;
 		//System.out.println("PAGING TABLE ADDRESS " + pagingTableAddr);
 	    int pagingRandomNumber = memory[pagingTableAddr + x * 4]; 
@@ -139,6 +153,7 @@ public class Machine implements Runnable{
     }
     public void commandInterpreter() throws Exception{
     	String command = "";
+    	byte IC[] = cpu.getIC();
     	int address = realAddress(IC[0], IC[1]);   // IC[0] - x, IC[1] - y (atv nei koord)
     	// Paimame komanda is atminties
     	for(int i = 0; i < WORD_SIZE; i++){
@@ -268,36 +283,37 @@ public class Machine implements Runnable{
     	incIC();
     	clearC();
     	int address = realAddress(x,y);
+    	byte AX[] = cpu.getAX();
     	for(int i = 0; i < WORD_SIZE; i++){
     		AX[i] = memory[address + i];
     	}
+    	cpu.setAX(AX);
     }
     public void commandLAFB(){
     	incIC();
     	clearC();
-    	for(int i = 0; i < WORD_SIZE; i++){
-    		AX[i] = BX[i];
-    	}
+    	cpu.setAX(cpu.getBX());
     }
     public void commandLB(int x, int y){
     	incIC();
     	clearC();
     	int address = realAddress(x,y);
+    	byte BX[] = cpu.getBX();
     	for(int i = 0; i < WORD_SIZE; i++){
     		BX[i] = memory[address + i];
     	}
+    	cpu.setBX(BX);
     }
     public void commandLBFA(){
     	incIC();
     	clearC();
-    	for(int i = 0; i < WORD_SIZE; i++){
-    		BX[i] = AX[i];
-    	}
+    	cpu.setBX(cpu.getAX());
     }
     public void commandSA(int x, int y){
     	incIC();
     	clearC();
     	int address = realAddress(x,y);
+    	byte AX[] = cpu.getAX();
     	for(int i = 0; i < WORD_SIZE; i++){
     		memory[address + i] = AX[i];
     	}
@@ -306,6 +322,7 @@ public class Machine implements Runnable{
     	incIC();
     	clearC();
     	int address = realAddress(x,y);
+    	byte BX[] = cpu.getBX();
     	for(int i = 0; i < WORD_SIZE; i++){
     		memory[address + i] = BX[i];
     	}
@@ -313,16 +330,12 @@ public class Machine implements Runnable{
     public void commandCOPA(){
     	incIC();
     	clearC();
-    	for(int i = 0; i < WORD_SIZE; i++){
-    		AX[i] = BX[i];
-    	}
+    	cpu.setAX(cpu.getBX());
     }
     public void commandCOPB(){
     	incIC();
     	clearC();
-    	for(int i = 0; i < WORD_SIZE; i++){
-    		BX[i] = AX[i];
-    	}
+    	cpu.setBX(cpu.getAX());
     }
     // ARITMETINES KOMANDOS
     public void commandAA(int x, int y){
@@ -333,6 +346,7 @@ public class Machine implements Runnable{
     	String num2 = "";
     	long temp1 = 0;
     	long temp2 = 0;
+    	byte AX [] = cpu.getAX();
     	for(int i = 0; i < WORD_SIZE; i++){
     		num1 += (String) Integer.toHexString(memory[address + i]).toUpperCase();
     		num2 += (String) Integer.toHexString(unsignedToBytes(AX[i])).toUpperCase();
@@ -361,7 +375,7 @@ public class Machine implements Runnable{
     			AX[i] = (byte) Integer.parseInt(hex, 16);
     		}
     	}
-    	
+    	cpu.setAX(AX);
     }
     public void commandAB(int x, int y){
     	incIC();
@@ -371,6 +385,7 @@ public class Machine implements Runnable{
     	String num2 = "";
     	long temp1 = 0;
     	long temp2 = 0;
+    	byte BX[] = cpu.getBX();
     	for(int i = 0; i < WORD_SIZE; i++){
     		num1 += (String) Integer.toHexString(memory[address + i]).toUpperCase();
     		num2 += (String) Integer.toHexString(unsignedToBytes(BX[i])).toUpperCase();
@@ -399,6 +414,7 @@ public class Machine implements Runnable{
     			BX[i] = (byte) Integer.parseInt(hex, 16);
     		}
     	}
+    	cpu.setBX(BX);
     }
     public void commandBA(int x, int y){
     	incIC();
@@ -408,6 +424,7 @@ public class Machine implements Runnable{
     	String num2 = "";
     	long temp1 = 0;
     	long temp2 = 0;
+    	byte AX[] = cpu.getAX();
     	for(int i = 0; i < WORD_SIZE; i++){
     		num1 += (String) Integer.toHexString(memory[address + i]).toUpperCase();
     		num2 += (String) Integer.toHexString(unsignedToBytes(AX[i])).toUpperCase();
@@ -430,15 +447,17 @@ public class Machine implements Runnable{
     	}
     	String hexSum = Long.toHexString(sum).toUpperCase();
     	
-    	
-    	///////////////////////////////////////////////////////////////////////////
-    	if(hexSum.length() == 8){
-    		for(int i = 0; i < WORD_SIZE; i++){
-    			String hex = hexSum.substring(i * 2, (i * 2) + 2);
-    			System.out.println(Integer.parseInt(hex, 16));
-    			AX[i] = (byte) Integer.parseInt(hex, 16);
-    		}
+    	while(hexSum.length() != 8){
+    		hexSum = "0" + hexSum; 
     	}
+    	//if(hexSum.length() == 8){
+    	for(int i = 0; i < WORD_SIZE; i++){
+    		String hex = hexSum.substring(i * 2, (i * 2) + 2);
+    		System.out.println(Integer.parseInt(hex, 16));
+   			AX[i] = (byte) Integer.parseInt(hex, 16);
+   		}
+    	//}
+    	cpu.setAX(AX);
     }
     public void commandBB(int x, int y){
     	incIC();
@@ -448,6 +467,7 @@ public class Machine implements Runnable{
     	String num2 = "";
     	long temp1 = 0;
     	long temp2 = 0;
+    	byte BX[] = cpu.getBX();
     	for(int i = 0; i < WORD_SIZE; i++){
     		num1 += (String) Integer.toHexString(memory[address + i]).toUpperCase();
     		num2 += (String) Integer.toHexString(unsignedToBytes(BX[i])).toUpperCase();
@@ -470,15 +490,17 @@ public class Machine implements Runnable{
     	}
     	String hexSum = Long.toHexString(sum).toUpperCase();
     	
-    	
-    	///////////////////////////////////////////////////////////////////////////
-    	if(hexSum.length() == 8){
-    		for(int i = 0; i < WORD_SIZE; i++){
-    			String hex = hexSum.substring(i * 2, (i * 2) + 2);
-    			System.out.println(Integer.parseInt(hex, 16));
-    			BX[i] = (byte) Integer.parseInt(hex, 16);
-    		}
+    	while(hexSum.length() != 8){
+    		hexSum = "0" + hexSum; 
     	}
+    	//if(hexSum.length() == 8){
+    	for(int i = 0; i < WORD_SIZE; i++){
+    		String hex = hexSum.substring(i * 2, (i * 2) + 2);
+    		System.out.println(Integer.parseInt(hex, 16));
+    		BX[i] = (byte) Integer.parseInt(hex, 16);
+    	}
+    	//}
+    	cpu.setBX(BX);
     }
     // LOGINES KOMANDOS
     public void commandCA(int x, int y){
@@ -486,10 +508,27 @@ public class Machine implements Runnable{
     	clearC();
     	int address = realAddress(x,y);
     	int correct = 0;
-    	for(int i = 0; i < WORD_SIZE; i++){
-    		if(AX[i] == memory[address + i]){
-    			correct++;
+    	byte AX[] = cpu.getAX();
+    	System.out.println("CPU GETA AX " + cpu.getAX()[0]);
+    	//System.out.println("PATIKRINIMAS " + AX[0] + " ir " + (memory[address] - 48));
+    	int counter = 0;
+    	for(int j = 0; j < WORD_SIZE; j++){
+    		if(AX[j] == 0){
+    			counter++;
     		}
+    	}
+    	if(counter == 3){
+	    	for(int i = 0; i < WORD_SIZE; i++){
+	    		if(AX[i] == memory[address + i] - 48){ //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	    			correct++;
+	    		}
+	    	}
+    	}else{
+    		for(int i = 0; i < WORD_SIZE; i++){
+	    		if(AX[i] == memory[address + i]){ //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	    			correct++;
+	    		}
+	    	}
     	}
     	if (correct == WORD_SIZE){
     		setC();
@@ -504,6 +543,7 @@ public class Machine implements Runnable{
     	clearC();
     	int address = realAddress(x,y);
     	int correct = 0;
+    	byte BX[] = cpu.getBX();
     	for(int i = 0; i < WORD_SIZE; i++){
     		if(BX[i] == memory[address + i]){
     			correct++;
@@ -519,16 +559,20 @@ public class Machine implements Runnable{
     }
     // VALDYMO PERDAVIMO
     public void commandJP(int x, int y){
+    	byte IC[] = cpu.getIC();
     	IC[0] = (byte)x;
     	IC[1] = (byte)y;
+    	cpu.setIC(IC);
     	isJump = true;
     	jumpToRow = x;
     	jumpToColumn = y;
     }
     public void commandJA(int x, int y){
+    	byte IC[] = cpu.getIC();
     	if(getBit(4) == 0 && getBit(3) == 0){ //>
     		IC[0] = (byte)x;
         	IC[1] = (byte)y;
+        	cpu.setIC(IC);
         	isJump = true;
         	jumpToRow = x;
         	jumpToColumn = y;
@@ -537,9 +581,11 @@ public class Machine implements Runnable{
     	}
     }
     public void commandJG(int x, int y){ //>=
+    	byte IC[] = cpu.getIC();
     	if(getBit(4) == 0){
     		IC[0] = (byte)x;
         	IC[1] = (byte)y;
+        	cpu.setIC(IC);
         	isJump = true;
         	jumpToRow = x;
         	jumpToColumn = y;
@@ -548,9 +594,11 @@ public class Machine implements Runnable{
     	}
     }
     public void commandJB(int x, int y){ //< 
+    	byte IC[] = cpu.getIC();
     	if(getBit(4) == 1){
     		IC[0] = (byte)x;
         	IC[1] = (byte)y;
+        	cpu.setIC(IC);
         	isJump = true;
         	jumpToRow = x;
         	jumpToColumn = y;
@@ -559,9 +607,11 @@ public class Machine implements Runnable{
     	}
     }
     public void commandJL(int x, int y){ // <=
+    	byte IC[] = cpu.getIC();
     	if(getBit(4) == 1 || getBit(3) == 1){
     		IC[0] = (byte)x;
         	IC[1] = (byte)y;
+        	cpu.setIC(IC);
         	isJump = true;
         	jumpToRow = x;
         	jumpToColumn = y;
@@ -570,9 +620,11 @@ public class Machine implements Runnable{
     	}
     }
     public void commandJN(int x, int y){ // <=
+    	byte IC[] = cpu.getIC();
     	if(getBit(3) == 0){
     		IC[0] = (byte)x;
         	IC[1] = (byte)y;
+        	cpu.setIC(IC);
         	isJump = true;
         	jumpToRow = x;
         	jumpToColumn = y;
@@ -584,28 +636,33 @@ public class Machine implements Runnable{
     //ISVEDIMO IR IVEDIMO KOMANDOS
     public void commandOP(int x, int y){
     	incIC();
-    	SI = 2;  
+    	byte SI = 2;
+    	cpu.setSI(SI);
     	int address = realAddress(x,y);
     	X = x;
     	Y = y;
     }
     public void commandIP(int x, int y){
     	incIC();
-    	SI = 1;  
+    	byte SI = 1; 
+    	cpu.setSI(SI);
     	int address = realAddress(x,y);
     	X = x;
     	Y = y;
     }
     // PABAIGA
     public void commandHALT(){
-    	SI = 3;
+    	byte SI = 3;
+    	cpu.setSI(SI);
     }
     public void incIC(){
+    	byte IC[] = cpu.getIC();
     	IC[1]++;
     	if(IC[1] > 15){
     		IC[0]++;
     		IC[1] = 0;
     	}
+    	cpu.setIC(IC);
     }
     // PAGING TABLE
     public void setPagingTable(){
@@ -625,40 +682,54 @@ public class Machine implements Runnable{
 		pagingTablesNum[to] = temp;
 	}
 	public void setZF(){
+		byte SF = cpu.getSF();
 		SF = (byte) (SF | (1 << 3));
+		cpu.setSF(SF);
 	}
 	public void clearZF(){
+		byte SF = cpu.getSF();
 		SF = (byte) (SF & ~(1 << 3));
 	}
 	public void clearC(){
+		byte C = cpu.getC();
 		C = 0;
+		cpu.setC(C);
 	}
 	public void setC(){
+		byte C = cpu.getC();
 		C = 1;
+		cpu.setC(C);
 	}
 	public void setCF(){
+		byte SF = cpu.getSF();
 		SF = (byte) (SF | (1 << 4));
+		cpu.setSF(SF);
 	}
 	public int getBit(int pos){
+		byte SF = cpu.getSF();
 		return(SF >> pos) & 1;
 	}
 	// INTERRUPTS
 	public void checkInterrupt() throws Exception{
-		if((byte) TI == 0){
+		
+		if(cpu.getTI() == 0){
 			System.out.println("Program has exceeded its time limit");
 			JOptionPane.showMessageDialog(null, "Program has exceeded its time limit", "Information", JOptionPane.INFORMATION_MESSAGE);
-			MODE = 1;
+			byte MODE = 1;
+			cpu.setMODE(MODE);
 			RM.supervisorMode();
 			restartTimer();
 			MODE = 0;
+			cpu.setMODE(MODE);
 			RM.userMode();
 		}
-		if((byte) PI != 0){
-			switch((byte) PI){
+		if(cpu.getPI() != 0){
+			switch(cpu.getPI()){
 			case 1:
 				System.out.println("Program interrupt. Incorrect command");
 				JOptionPane.showMessageDialog(null, "Incorrect command", "Program interrupt", JOptionPane.ERROR_MESSAGE);
-				MODE = 1;
+				byte MODE = 1;
+				cpu.setMODE(MODE);
 				RM.supervisorMode();
 				stopProgram();
 				break;
@@ -666,6 +737,7 @@ public class Machine implements Runnable{
 				System.out.println("Program interrupt. Negative result");
 				JOptionPane.showMessageDialog(null, "Negative result", "Program interrupt", JOptionPane.ERROR_MESSAGE);
 				MODE = 1;
+				cpu.setMODE(MODE);
 				RM.supervisorMode();
 				stopProgram();
 				break;
@@ -673,6 +745,7 @@ public class Machine implements Runnable{
 				System.out.println("Program interrupt. Division by zero");
 				JOptionPane.showMessageDialog(null, "Division by zero", "Program interrupt", JOptionPane.ERROR_MESSAGE);
 				MODE = 1;
+				cpu.setMODE(MODE);
 				RM.supervisorMode();
 				stopProgram();
 				break;
@@ -680,88 +753,103 @@ public class Machine implements Runnable{
 				System.out.println("Program interrupt. Program overflow");
 				JOptionPane.showMessageDialog(null, "Program overflow", "Program interrupt", JOptionPane.ERROR_MESSAGE);
 				MODE = 1;
+				cpu.setMODE(MODE);
 				RM.supervisorMode();
 				stopProgram();
 				break;
 			}
 		}
-		if((byte) SI != 0){
-			switch((byte) SI){
+		if(cpu.getSI() != 0){
+			switch(cpu.getSI()){
 			case 1:
 				System.out.println("Program interrupt. Data input");
 				//JOptionPane.showMessageDialog(null, "Data input", "Program interrupt", JOptionPane.INFORMATION_MESSAGE);
-				MODE = 1;
+				byte MODE = 1;
+				cpu.setMODE(MODE);
 				RM.supervisorMode();
 				channelNumber = 1;
 				MODE = 0;
+				cpu.setMODE(MODE);
 				RM.userMode();
-				SI = 0;
+				byte SI = 0;
+				cpu.setSI(SI);
 				break;
 			case 2:
 				System.out.println("Program interrupt. Data output");
 				//JOptionPane.showMessageDialog(null, "Data output", "Program interrupt", JOptionPane.INFORMATION_MESSAGE);
 				MODE = 1;
+				cpu.setMODE(MODE);
 				RM.supervisorMode();
 				channelNumber = 2;
 				MODE = 0;
+				cpu.setMODE(MODE);
 				RM.userMode();
 				SI = 0;
+				cpu.setSI(SI);
 				break;
 			case 3:
 				System.out.println("Program interrupt. Command halt");
 				JOptionPane.showMessageDialog(null, "Command halt", "Program interrupt", JOptionPane.INFORMATION_MESSAGE);
-				MODE = 1;
+				cpu.setMODE(MODE = 1);
 				RM.supervisorMode();
 				stopProgram();
 				break;
 			}
 		}
-		if((byte) IOI != 0){
-			switch((byte) IOI){
+		if(cpu.getIOI()!= 0){
+			switch(cpu.getIOI()){
 			case 1:
 				System.out.println("Channel 1 done");
 				//JOptionPane.showMessageDialog(null, "Channel 1 done", "Information", JOptionPane.INFORMATION_MESSAGE);
-				MODE = 1;
+				byte MODE = 1;
+				cpu.setMODE(MODE);
 				RM.supervisorMode();
-				IOI = 0;
-				MODE = 0;
+				byte IOI = 0;
+				cpu.setIOI(IOI);
+				cpu.setMODE(MODE = 0);
 				RM.userMode();
 				break;
 			case 2:
 				System.out.println("Channel 2 done");
 				//JOptionPane.showMessageDialog(null, "Channel 2 done", "Information", JOptionPane.INFORMATION_MESSAGE);
-				MODE = 1;
+				cpu.setMODE(MODE = 1);
 				RM.supervisorMode();
-				IOI = 0;
-				MODE = 0;
+				cpu.setIOI(IOI = 0);
+				cpu.setMODE(MODE = 0);
 				RM.userMode();
 				break;
 			case 3:
 				System.out.println("Channel 3 done");
 				//JOptionPane.showMessageDialog(null, "Channel 3 done", "Information", JOptionPane.INFORMATION_MESSAGE);
-				MODE = 1;
+				cpu.setMODE(MODE = 1);
 				RM.supervisorMode();
-				IOI = 0;
-				MODE = 0;
+				cpu.setIOI(IOI = 0);
+				cpu.setMODE(MODE = 0);
 				RM.userMode();
 				break;
 			}
 		}
 	}
 	public void restartTimer(){
-		if((byte) MODE == 1){
-			TI = (byte) 10;
+		if(cpu.getMODE() == 1){
+			cpu.setTI((byte) 10);
 			System.out.println("Supervisor => Timer restarted succesfully");
 		}
 	}
 	public void startIO() throws IOException{
 		if(channelNumber == 1){
 			channelNumber = 0;
-			CH1 = 1;
+			cpu.setCH1((byte) 1);
 			System.out.println("INPUT DATA ");
 			//BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 			//String input = br.readLine();
-			String input = JOptionPane.showInputDialog("Input");
+			//String input = JOptionPane.showInputDialog("Input");
+			JOptionPane.showMessageDialog(null, "Áveskite duomenis á ávedimo langà","Data input", JOptionPane.INFORMATION_MESSAGE);
+			String input = "";
+			while(!VM.enterInputText){
+				System.out.print("");
+			}
+			input = VM.textPane.getText();
 			System.out.println("DATA " + input);
 			int length = input.length();
 			if(length > 64){
@@ -787,13 +875,15 @@ public class Machine implements Runnable{
 					memory[address + j] = channelDeviceBuffer[i * WORD_SIZE + j];
 				}
 			}
-			CH1 = (byte) 0;
+		    cpu.setCH1((byte) 0);
+		    byte IOI = cpu.getIOI();
 			IOI += 1;
+			cpu.setIOI(IOI);
 			printMemory();
 		}
 		if(channelNumber == 2){
 			channelNumber = 0;
-			CH2 = 1;
+			cpu.setCH2((byte) 1);
 			int startPos = X * BLOCK_SIZE + Y;  // !!!!!!!!!!!!!!!!!!!
 			outerLoopCH2:
 			for(int i = 0; i < BLOCK_SIZE; i++){
@@ -815,21 +905,31 @@ public class Machine implements Runnable{
 				System.out.write(channelDeviceBuffer[i]);
 			}
 			String output = "";
+			int counter = 1;
 			for(int i = 0; i < channelDeviceBuffer.length; i++){
 				output += String.valueOf(Character.toChars(channelDeviceBuffer[i]));
+				if(output.length() > 24 * counter){
+					output +="\n";
+					counter++;
+				}
 			}
 			System.out.println(output);
-			JOptionPane.showMessageDialog(null, output ,"Data output", JOptionPane.INFORMATION_MESSAGE);
+			VM.textPane_1.setText(output);
+			//JOptionPane.showMessageDialog(null, output ,"Data output", JOptionPane.INFORMATION_MESSAGE);
 			
-			CH2 = 0;
-			IOI += 2; 
+			cpu.setCH2((byte) 0);
+			byte IOI = cpu.getIOI();
+			IOI += 2;
+			cpu.setIOI(IOI);
 			//printMemory();
 		}
 		if(channelNumber == 3){
 			channelNumber = 0;
-			CH3 = 1;
-			CH3 = 0;
+			cpu.setCH3((byte) 1);
+			cpu.setCH3((byte) 0);
+			byte IOI = cpu.getIOI();
 			IOI += 4;
+			cpu.setIOI(IOI);
 		}
 	}
 	public void stopProgram() throws Exception{
@@ -859,11 +959,12 @@ public class Machine implements Runnable{
 		}
 	*/
     	RM.printMemory();
-    	VM.printMemory();
+    	vm.printMemory();
     	
     	
     }
     public void printRegisters(){
+    	/*
     	System.out.println("AX = " + (Integer.toHexString(unsignedToBytes(AX[0])).toUpperCase()) + " " + 
     		Integer.toHexString(unsignedToBytes(AX[1])).toUpperCase() + " " + Integer.toHexString(unsignedToBytes(AX[2])).toUpperCase()
     		+ " " + Integer.toHexString(unsignedToBytes(AX[3])).toUpperCase());
@@ -873,8 +974,9 @@ public class Machine implements Runnable{
      	System.out.println("IC = " + (Integer.toHexString(IC[0]).toUpperCase()) + " " + 
         Integer.toHexString(IC[1]).toUpperCase());
     	System.out.println("C  = " + C);
-    	RM.printRegisters();
-    	VM.printRegisters();
+    */
+    	RM.printRegisters(cpu);
+    	VM.printRegisters(cpu);
     }
     public static int unsignedToBytes(byte b){
     	return b & 0XFF;
@@ -883,20 +985,8 @@ public class Machine implements Runnable{
     	byte memory[] = new byte[BLOCKS * BLOCK_SIZE * WORD_SIZE];
     	Machine.memory = memory;
     }
-    public void clearRegisters(){
-    	for(int i = 0; i < WORD_SIZE; i++){
-    		AX[i] = 0;
-    		BX[i] = 0;
-    	}
-    	IC[0] = 0;
-    	IC[1] = 0;
-    	SF = 0;
-    	PLR[0] = 0;
-        PLR[1] = 15;
-        PLR[2] = 6;
-    	PLR[3] = 1;
-    	TI = 10;
-    } 
+     ////!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!gali but kad reikia
+    /*
     public void clearRegistersVm(){
     	for(int i = 0; i < WORD_SIZE; i++){
     		AX[i] = 0;
@@ -907,6 +997,11 @@ public class Machine implements Runnable{
     	SF = 0;
     	TI = 10;
     }
+    */
+    
+    public CPU getCPU(){
+    	return cpu;
+    }
     
     public void run(){
     	try {
@@ -915,10 +1010,11 @@ public class Machine implements Runnable{
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-    	if(Machine.PLR[3] == 4){
+    	
+    	if(cpu.getPLR()[3] == 4){
     		programsNum = 0;
     	}
-    	Machine machine = new Machine();
+    	//Machine machine = new Machine();
         loader = new Loader(fileSystem); // gauname programu masyvo vardus
         try{
         	 programsNames = loader.getProgramsNames();
@@ -926,20 +1022,21 @@ public class Machine implements Runnable{
         	System.out.println(e.toString());
         }
     	if(programsNum == 0){
-    		machine.clearRegisters();
-    		machine.clearMemory();
-    		machine.setPagingTable();
+    		cpu.clearRegisters();
+    		clearMemory();
+    		setPagingTable();
     		//machine.printMemory();
     		//machine.printRegisters();
     	}
     	for(int i = 0; i < programNameNum; i++){
-    		machine.clearRegistersVm();
-    		if(Machine.PLR[3] == 4){
+    		cpu.clearRegisters();
+    		//clearRegistersVm();
+    		if(cpu.getPLR()[3] == 4){
         		programsNum = 0;
-        		machine.clearRegisters();
-        		machine.clearMemory();
-        		machine.setPagingTable();
-        	}
+        		cpu.clearRegisters();
+        		clearMemory();
+        		setPagingTable();
+    	    }
     		int counter = 0;
     		boolean run = true;
     		RM.currentProgram(programsNames[i]);
@@ -947,45 +1044,50 @@ public class Machine implements Runnable{
     		//pradedame vykdyti programa
     		while(run){
     			try{
-    				machine.startIO();
+    				startIO();
     				//machine.printRegisters();
     				if(counter == 0){
-    					MODE = 1;  
+    					cpu.setMODE((byte) 1);
     					VM.setVmColumn(0);
 						VM.setVmRow(0);
     					loader.checkCommands(programsNames[i]); //patikriname ar korektiska programa
-    					machine.loader(programsNames[i], programsNum);
-    					machine.vm = new VM();
-    			    	machine.vm.vm();
-    			    	machine.printMemory();
-    			    	machine.vm.setModeWait();
+    					loader(programsNames[i], programsNum);
+    					vm = new VM(this);
+    			    	vm.vm();
+    			    	printMemory();
+    			    	vm.setModeWait();
         			}
     				RM.userMode();
-    				machine.printRegisters();
-    				if(machine.vm.getMode() != 2){
-    					while(machine.vm.getMode() == 0){
+    				printRegisters();
+    				if(vm.getMode() != 2){
+    					while(vm.getMode() == 0){
     						System.out.print("");
         			    }
-    					if(machine.vm.getMode() != 2){
-    						machine.vm.setModeWait();
+    					if(vm.getMode() != 2){
+    						vm.setModeWait();
     					}
     				}
-		    		machine.printMemory();
-			   		machine.commandInterpreter();
-			   		machine.TI -= 1;
-			   		machine.checkInterrupt();
+		    		printMemory();
+			   		commandInterpreter();
+			   		byte TI = cpu.getTI();
+			   		TI -= 1;
+			   		cpu.setTI(TI);
+			   		checkInterrupt();
 			   		counter++;
     			}catch(Exception e){
     				if(loader.checkCommands()){
-    					machine.PLR[3]++;
+    					byte PLR[] = cpu.getPLR();
+    					PLR[3]++;
+    					cpu.setPLR(PLR);
     				}else{
     					loader.setCheckCommands(true);
     				}
 		    		//machine.plr3++;
-		    		machine.SI = 0;
-					machine.IC[0] = 0;
-					machine.IC[1] = 0;
-					machine.TI = 10;
+    				cpu.setSI((byte) 0);
+    				byte IC[] = cpu.getIC();
+					IC[0] = 0;
+					IC[1] = 0;
+					cpu.setTI((byte) 10);
 					if(vm.frmVm != null){
 						vm.frmVm.dispose();
 					}

@@ -2,16 +2,40 @@
 //pliusai, minusai
 //paryskinimas
 //db duomenys 0000d '  '
-#program
+#test
 $WOW
 .DAT 7
+0002
 0001
 3333
 $WRT
 LA90
+BA91
+CA91
+HALT
+$END
+#program
+$WOW
+.DAT 7
+0001
+0001
+0000
+$WRT
 LA90
+BA91
 CA91
 JN01
+HALT
+$END
+#programa1
+$WOW
+.DAT 3
+1110
+1111
+3333
+$WRT
+IP90
+OP90
 HALT
 $END
 #Jmp
@@ -34,40 +58,5 @@ LA91
 LA92
 LA90
 LA03
-HALT
-$END
-#programa1
-$WOW
-.DAT 3
-1110
-1111
-3333
-$WRT
-IP90
-OPD0
-HALT
-$END
-#programa
-$WOW
-.DAT 7
-1111
-1110
-3333
-$WRT
-LA90
-BA91
-CA91
-JL00
-HALT
-$END
-#programa1
-$WOW
-.DAT 3
-1110
-1111
-3333
-$WRT
-IP90
-OPD0
 HALT
 $END

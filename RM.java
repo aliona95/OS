@@ -24,11 +24,14 @@ import javax.swing.SwingConstants;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
-
+import javax.swing.JScrollBar;
+import javax.swing.JSpinner;
+import javax.swing.JTextArea;
+import javax.swing.JTabbedPane;
+// norint pakeisti failu sistemos failo pavadinima:
+// ctrl+f fileSystem = "failas.txt";
 public class RM {
-
-	private static JFrame frmMm;
-	public static JTextField txt;
+	static JFrame frmMm;
 	public static JTable table_1;
 	public static String fileSystem;
 	public static TextField textAX;
@@ -49,12 +52,13 @@ public class RM {
 		
 	static JRadioButton[] fontButtons = new JRadioButton[3];
 	static ButtonGroup fontGroup = new ButtonGroup();
+	private static JTable table;
 	
 	/**
 	 * Launch the application.
 	 */
 	
-	public static void main(String[] args){
+	public static void main(){
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
@@ -85,125 +89,114 @@ public class RM {
 		frmMm.getContentPane().setLayout(null);
 		
 		Label label = new Label("Nustatymai ");
-		label.setBounds(10, 28, 72, 22);
-		label.setForeground(Color.BLUE);
+		label.setBounds(10, 10, 72, 22);
+		label.setForeground(new Color(0, 128, 128));
 		frmMm.getContentPane().add(label);
 		
 		Label label_1 = new Label("Re\u017Eimas");
-		label_1.setBounds(20, 56, 62, 22);
+		label_1.setBounds(20, 38, 62, 22);
 		frmMm.getContentPane().add(label_1);
 		
 		userButton = new JRadioButton("Vartotojas");
-		userButton.setBounds(30, 84, 109, 23);
+		userButton.setBounds(30, 65, 109, 23);
 		userButton.setBackground(new Color(248, 248, 255));
 		frmMm.getContentPane().add(userButton);
 		
 		supervisorButton = new JRadioButton("Supervizorius");
-		supervisorButton.setBounds(30, 110, 109, 23);
+		supervisorButton.setBounds(30, 93, 109, 23);
 		supervisorButton.setBackground(new Color(248, 248, 255));
 		frmMm.getContentPane().add(supervisorButton);
 		
 		
 		
 		Label label_2 = new Label("Registrai");
-		label_2.setBounds(157, 28, 62, 22);
-		label_2.setForeground(Color.BLUE);
+		label_2.setBounds(157, 10, 62, 22);
+		label_2.setForeground(new Color(0, 128, 128));
 		frmMm.getContentPane().add(label_2);
 		
 		Label label_3 = new Label("PLR");
-		label_3.setBounds(144, 56, 35, 22);
+		label_3.setBounds(144, 38, 35, 22);
 		frmMm.getContentPane().add(label_3);
 		
 		textPLR = new TextField();
+		textPLR.setBounds(185, 38, 73, 22);
 		textPLR.setText("0000");
 		textPLR.setEditable(false);
 		textPLR.setEnabled(false);
-		textPLR.setBounds(185, 56, 73, 22);
 		textPLR.setBackground(Color.LIGHT_GRAY);
 		textPLR.setForeground(Color.BLACK);
 		frmMm.getContentPane().add(textPLR);
 		
 		Label label_5 = new Label("IC");
-		label_5.setBounds(157, 111, 28, 22);
+		label_5.setBounds(151, 94, 28, 22);
 		frmMm.getContentPane().add(label_5);
 		
 		textIC = new TextField();
+		textIC.setBounds(185, 94, 47, 22);
 		textIC.setText("0000");
 		textIC.setEditable(false);
-		textIC.setBounds(185, 110, 47, 22);
 		textIC.setEnabled(false);
 		textIC.setBackground(Color.LIGHT_GRAY);
 		frmMm.getContentPane().add(textIC);
 		
 		Label label_6 = new Label("PI");
-		label_6.setBounds(264, 56, 28, 22);
+		label_6.setBounds(264, 38, 15, 22);
 		frmMm.getContentPane().add(label_6);
 		
 		textPI = new TextField();
+		textPI.setBounds(298, 38, 47, 22);
 		textPI.setText("0000");
-		textPI.setBounds(296, 56, 47, 22);
 		textPI.setEnabled(false);
 		textPI.setEditable(false);
 		textPI.setBackground(Color.LIGHT_GRAY);
 		frmMm.getContentPane().add(textPI);
 		
 		Label label_7 = new Label("SI");
-		label_7.setBounds(264, 85, 22, 22);
+		label_7.setBounds(264, 66, 15, 22);
 		frmMm.getContentPane().add(label_7);
 		
 		textSI = new TextField();
+		textSI.setBounds(298, 66, 47, 22);
 		textSI.setText("0000");
-		textSI.setBounds(296, 84, 47, 22);
 		textSI.setEnabled(false);
 		textSI.setEditable(false);
 		textSI.setBackground(Color.LIGHT_GRAY);
 		frmMm.getContentPane().add(textSI);
 		
 		Label label_8 = new Label("TI");
-		label_8.setBounds(264, 110, 22, 22);
+		label_8.setBounds(264, 94, 15, 22);
 		frmMm.getContentPane().add(label_8);
 		
 		textTI = new TextField();
+		textTI.setBounds(298, 94, 47, 22);
 		textTI.setText("0000");
-		textTI.setBounds(296, 110, 47, 22);
 		textTI.setEnabled(false);
 		textTI.setEditable(false);
 		textTI.setBackground(Color.LIGHT_GRAY);
 		frmMm.getContentPane().add(textTI);
 		
 		Label label_9 = new Label("C");
-		label_9.setBounds(157, 84, 22, 22);
+		label_9.setBounds(154, 66, 22, 22);
 		frmMm.getContentPane().add(label_9);
 		
 		textC = new TextField();
+		textC.setBounds(185, 66, 47, 22);
 		textC.setText("FALSE");
-		textC.setBounds(185, 85, 47, 22);
 		textC.setEnabled(false);
 		textC.setEditable(false);
 		textC.setBackground(Color.LIGHT_GRAY);
 		frmMm.getContentPane().add(textC);
 		
-		txt = new JTextField();
-		txt.setText("");
-		txt.setToolTipText("");
-		txt.setBounds(189, 522, 314, 20);
-		frmMm.getContentPane().add(txt);
-		txt.setColumns(10);
-		
-		JLabel lblUduoiPavadinimai = new JLabel("Fail\u0173 sistema:");
-		lblUduoiPavadinimai.setBounds(30, 525, 149, 14);
-		frmMm.getContentPane().add(lblUduoiPavadinimai);
-		
 		JButton btnPradti = new JButton("Prad\u0117ti");
-		btnPradti.setBounds(540, 521, 89, 23);
+		btnPradti.setBounds(712, 644, 89, 23);
 		btnPradti.setForeground(new Color(255, 255, 255));
-		btnPradti.setBackground(new Color(112, 128, 144));
+		btnPradti.setBackground(new Color(0, 128, 128));
 		frmMm.getContentPane().add(btnPradti);
 		
 			
 		
 		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(10, 165, 664, 325);
+		scrollPane.setBounds(10, 123, 664, 295);
 		scrollPane.setBackground(Color.ORANGE);
 		frmMm.getContentPane().add(scrollPane);
 		
@@ -294,83 +287,121 @@ public class RM {
     	}
 		*/
 		JLabel lblkeltiIrVykdomi = new JLabel("\u012Ekeltos ir \r\nvykdomos");
-		lblkeltiIrVykdomi.setBounds(684, 163, 117, 42);
+		lblkeltiIrVykdomi.setForeground(new Color(0, 128, 128));
+		lblkeltiIrVykdomi.setBounds(684, 121, 117, 42);
 		frmMm.getContentPane().add(lblkeltiIrVykdomi);
 		
 		JLabel lblFailai = new JLabel("užduotys:");
-		lblFailai.setBounds(684, 191, 136, 14);
+		lblFailai.setForeground(new Color(0, 128, 128));
+		lblFailai.setBounds(684, 155, 136, 14);
 		frmMm.getContentPane().add(lblFailai);
 		
 	    panel = new JPanel();
+	    panel.setBounds(684, 188, 117, 230);
 		panel.setBorder(new BevelBorder(BevelBorder.LOWERED, Color.DARK_GRAY, null, null, null));
-		panel.setBounds(684, 214, 117, 230);
 		frmMm.getContentPane().add(panel);
 		
 		textAX = new TextField();
+		textAX.setBounds(383, 38, 88, 22);
 		textAX.setText("0000");
 		textAX.setEnabled(false);
 		textAX.setEditable(false);
 		textAX.setBackground(Color.LIGHT_GRAY);
-		textAX.setBounds(383, 56, 88, 22);
 		frmMm.getContentPane().add(textAX);
 		
 		textBX = new TextField();
+		textBX.setBounds(383, 66, 88, 22);
 		textBX.setText("0000");
 		textBX.setEnabled(false);
 		textBX.setEditable(false);
 		textBX.setBackground(Color.LIGHT_GRAY);
-		textBX.setBounds(383, 84, 88, 22);
 		frmMm.getContentPane().add(textBX);
 		
 		Label label_11 = new Label("AX");
-		label_11.setBounds(356, 56, 22, 22);
+		label_11.setBounds(351, 38, 22, 22);
 		frmMm.getContentPane().add(label_11);
 		
 		Label label_12 = new Label("BX");
-		label_12.setBounds(355, 85, 22, 22);
+		label_12.setBounds(351, 66, 22, 22);
 		frmMm.getContentPane().add(label_12);
 		
 	    textDS = new TextField();
+	    textDS.setBounds(505, 66, 88, 22);
 	    textDS.setText("0000");
 	    textDS.setEnabled(false);
 	    textDS.setEditable(false);
 	    textDS.setBackground(Color.LIGHT_GRAY);
-	    textDS.setBounds(383, 111, 88, 22);
 		frmMm.getContentPane().add(textDS);
 		
 		Label label_4 = new Label("DS");
-		label_4.setBounds(356, 111, 22, 22);
+		label_4.setBounds(477, 66, 22, 22);
 		frmMm.getContentPane().add(label_4);
 		
 		textCS = new TextField();
+		textCS.setBounds(505, 38, 88, 22);
 		textCS.setText("0000");
 		textCS.setEnabled(false);
 		textCS.setEditable(false);
 		textCS.setBackground(Color.LIGHT_GRAY);
-		textCS.setBounds(505, 56, 88, 22);
 		frmMm.getContentPane().add(textCS);
 		
 		Label label_13 = new Label("CS");
-		label_13.setBounds(477, 56, 22, 22);
+		label_13.setBounds(477, 38, 22, 22);
 		frmMm.getContentPane().add(label_13);
+		
+		JScrollPane scrollPane_1 = new JScrollPane();
+		scrollPane_1.setEnabled(false);
+		scrollPane_1.setBounds(10, 455, 343, 212);
+		frmMm.getContentPane().add(scrollPane_1);
+		
+		table = new JTable();
+		table.setEnabled(false);
+		table.setBackground(new Color(255, 255, 153));
+		table.setModel(new DefaultTableModel(
+			new Object[][] {
+				{"", "", ""},
+				{null, null, null},
+				{null, null, null},
+				{null, null, null},
+				{null, null, null},
+				{null, null, null},
+				{null, null, null},
+				{null, null, null},
+				{null, null, null},
+				{null, null, null},
+				{null, null, null},
+				{null, null, null},
+			},
+			new String[] {
+				"Procesas", "Prioritetas", "B\u016Bsena"
+			}
+		));
+		scrollPane_1.setViewportView(table);
+		RM.setProcessTable(0, "EIMANTAS", 100, "MIEGA");
+		
+		JLabel lblProcesSraas = new JLabel("Procesų sąrašas");
+		lblProcesSraas.setForeground(new Color(0, 128, 128));
+		lblProcesSraas.setBounds(97, 429, 112, 14);
+		frmMm.getContentPane().add(lblProcesSraas);
 		
 		btnPradti.addActionListener( new ActionListener()
 		{
 		    public void actionPerformed(ActionEvent e)
 		    {
-		        // nustatome pradine PLR reiksme
-		    	if(Machine.programsNum == 0){
-		    		Machine.PLR[0] = 0;
-			    	Machine.PLR[1] = 15;
-			    	Machine.PLR[2] = 6;
-			    	Machine.PLR[3] = 1;
+		    	if(Machine.programsNum == 0){ //gali prireikti sito if!!!!!			
 		    	}
+		    	
+		    	byte PLR[] = {0, 15, 6, 1}; //pradine puslapiu lenteles reiksme
+		    	byte MODE = 1; // reiskia supervizoriaus rezima
+		    	CPU cpu = new CPU(MODE, PLR);
+		    
 		    	// nuskaitome irasytas programas
-		        fileSystem = txt.getText();
+		        //fileSystem = txt.getText();
+		    	fileSystem = "failas.txt";
 		        programsNum = 0;
 				try {
 					Machine.fileSystem = fileSystem;
-				    Thread t = new Thread(new Machine());
+				    Thread t = new Thread(new Machine(cpu));
 				    t.start();
 				} catch (Exception e1) {
 						// TODO Auto-generated catch block
@@ -380,7 +411,8 @@ public class RM {
 		});
 		System.out.println(panel.getComponentCount());
 		
-		frmMm.setBounds(100, 100, 827, 602);
+		//frmMm.setBounds(100, 100, 827, 717);
+		frmMm.setBounds(0, 0, 827, 717);
 		frmMm.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	}
 	public static void printMemory(){
@@ -403,34 +435,45 @@ public class RM {
 			}
 		}
 	}
-	public static void printRegisters(){
-		textAX.setText(Integer.toHexString(Machine.unsignedToBytes(Machine.AX[0])).toUpperCase() + 
-			Integer.toHexString(Machine.unsignedToBytes(Machine.AX[1])).toUpperCase() + 
-			Integer.toHexString(Machine.unsignedToBytes(Machine.AX[2])).toUpperCase() + 
-			Integer.toHexString(Machine.unsignedToBytes(Machine.AX[3])).toUpperCase());
-		textBX.setText(Integer.toHexString(Machine.unsignedToBytes(Machine.BX[0])).toUpperCase() + 
-				Integer.toHexString(Machine.unsignedToBytes(Machine.BX[1])).toUpperCase() + 
-				Integer.toHexString(Machine.unsignedToBytes(Machine.BX[2])).toUpperCase() + 
-				Integer.toHexString(Machine.unsignedToBytes(Machine.BX[3])).toUpperCase());
-		textPLR.setText(Integer.toHexString(Machine.unsignedToBytes(Machine.PLR[0])).toUpperCase() + 
-				Integer.toHexString(Machine.unsignedToBytes(Machine.PLR[1])).toUpperCase() + 
-				Integer.toHexString(Machine.PLR[2]*10 + Machine.PLR[3]).toUpperCase());
-		textIC.setText((Integer.toHexString(Machine.IC[0]).toUpperCase()) + " " + 
-	        	Integer.toHexString(Machine.IC[1]).toUpperCase());
-		if(Machine.C == 0){
+	public static void printRegisters(CPU cpu){
+		textAX.setText(Integer.toHexString(Machine.unsignedToBytes(cpu.getAX()[0])).toUpperCase() + "|" +
+			Integer.toHexString(Machine.unsignedToBytes(cpu.getAX()[1])).toUpperCase() + "|" +
+			Integer.toHexString(Machine.unsignedToBytes(cpu.getAX()[2])).toUpperCase() + "|" +
+			Integer.toHexString(Machine.unsignedToBytes(cpu.getAX()[3])).toUpperCase());
+		
+		textBX.setText(Integer.toHexString(Machine.unsignedToBytes(cpu.getBX()[0])).toUpperCase() + "|" +
+				Integer.toHexString(Machine.unsignedToBytes(cpu.getBX()[1])).toUpperCase() + "|" +
+				Integer.toHexString(Machine.unsignedToBytes(cpu.getBX()[2])).toUpperCase() + "|" +
+				Integer.toHexString(Machine.unsignedToBytes(cpu.getBX()[3])).toUpperCase());
+		
+		textPLR.setText(Integer.toHexString(Machine.unsignedToBytes(cpu.getPLR()[0])).toUpperCase() + 
+				Integer.toHexString(Machine.unsignedToBytes(cpu.getPLR()[1])).toUpperCase() + 
+				Integer.toHexString(cpu.getPLR()[2]*10 + cpu.getPLR()[3]).toUpperCase());
+		textIC.setText((Integer.toHexString(cpu.getIC()[0]).toUpperCase()) + "|" + 
+	        	Integer.toHexString(cpu.getIC()[1]).toUpperCase());
+		
+		if(cpu.getC() == 0){
 			textC.setText("FALSE");
 		}else{
 			textC.setText("TRUE");
 		}
-		textPI.setText(Integer.toString(Machine.PI));
-		textSI.setText(Integer.toString(Machine.SI));
-		textTI.setText(Integer.toString(Machine.TI));
+		textPI.setText(Integer.toString(cpu.getPI()));
+		textSI.setText(Integer.toString(cpu.getSI()));
+		textTI.setText(Integer.toString(cpu.getTI()));
 		
-	    //skaiciuojame realiuoje atmintyje kodo ir duomenu segmentu adresus
-		int segment = Machine.realAddress(Machine.CS[0], Machine.CS[1]) / Machine.BLOCK_SIZE / Machine.WORD_SIZE ;;
-		textCS.setText(Integer.toHexString(segment).toUpperCase()+"0");
-		segment = Machine.realAddress(Machine.DS[0], Machine.CS[1]) / Machine.BLOCK_SIZE / Machine.WORD_SIZE ;
-		textDS.setText(Integer.toHexString(segment).toUpperCase()+"0");
+	    //skaiciuojame realioje atmintyje kodo ir duomenu segmentu adresus
+		byte CS[] = cpu.getCS();
+		byte DS[] = cpu.getDS();
+		int segment = Machine.realAddress(CS[0], CS[1]) / Machine.BLOCK_SIZE / Machine.WORD_SIZE;
+		textCS.setText(Integer.toHexString(segment).toUpperCase() + "|0");
+		segment = Machine.realAddress(DS[0], CS[1]) / Machine.BLOCK_SIZE / Machine.WORD_SIZE ;
+		textDS.setText(Integer.toHexString(segment).toUpperCase() + "|0");
+		
+	}
+	public static void setProcessTable(int row, String procName, int procPrior, String procState){
+		table.setValueAt(procName, row, 0);
+		table.setValueAt(procPrior, row, 1);
+		table.setValueAt(procState, row, 2);
 	}
 	public static void userMode() throws InterruptedException{
 		RM.supervisorButton.setSelected(false);
